@@ -458,7 +458,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da44328a5e2c6324c852ac6ec74df951, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  serverSampleRate: 48000
+  serverSampleRate: 44100
   volume: 1
   bufferThresholdChunks: 3
 --- !u!82 &798898732
