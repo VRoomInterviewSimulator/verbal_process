@@ -7,7 +7,7 @@
 * **구성 요소:**
     * **Unity:** 마이크 입력, VAD, 오디오 피쳐 추출, 실시간 오디오 스트리밍 재생.
     * **Node A (STT Worker):** `stt-worker.py`. WebSocket Proxy 역할. STT(Whisper) 처리 및 Node B 응답 패스스루.
-    * **Node B (Brain/TTS Worker):** `tts-worker.py` (FastAPI). LLM(Groq) 생성 및 TTS(XTTS-v2 + DeepSpeed) 스트리밍.
+    * **Node B (Brain/TTS Worker):** `tts-worker.py` (FastAPI). LLM(Groq) 생성 및 TTS(FishSpeech v1.5) 스트리밍.
 * **전체 흐름 (Streaming Passthrough):**
     1. **Unity → (WebSocket: Audio/Feature)** → **Node A**: 발화 종료 즉시 오디오 데이터 전송.
     2. **Node A → (HTTP POST: Text)** → **Node B**: STT 결과를 Node B로 전달.
@@ -19,8 +19,8 @@
 # Architecture Requirements
 1. **철저한 모듈화:** Unity와 Python 워커 간의 역할 분담 명확화.
 2. **저지연 최적화:** 
-    * **Node B:** XTTS-v2에 `DeepSpeed` 적용, CUDA 12.4 환경 활용.
-    * **Streaming:** WAV 헤더 없는 **Raw PCM (16-bit Mono, 24kHz 권장)** 사용.
+    * **Node B:** FishSpeech v1.5에 `torch.compile` 적용, CUDA 12.4 환경 활용.
+    * **Streaming:** WAV 헤더 없는 **Raw PCM (32-bit Float Mono, 44.1kHz)** 사용.
     * **Barge-in:** 사용자의 새 발화 감지 시 즉시 기존 응답 스트림 중단(Interrupt) 기능.
 3. **이벤트 기반 설계:** `System.Action`을 통한 상태 관리 및 UI 업데이트.
 4. **회복 탄력성:** 네트워크 순서 바뀜(Jitter) 대응을 위한 Unity 측 적응형 버퍼링.
