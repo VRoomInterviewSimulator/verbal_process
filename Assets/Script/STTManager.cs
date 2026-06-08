@@ -139,7 +139,7 @@ namespace VerbalProcess
 
         private async Task ReceiveLoop()
         {
-            byte[] buffer = new byte[1024 * 32];
+            byte[] buffer = new byte[1024 * 512]; //일단 임시방편으로 버퍼 크기 늘림
             using (var ms = new System.IO.MemoryStream())
             {
                 while (_webSocket.State == WebSocketState.Open)
