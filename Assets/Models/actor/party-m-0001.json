@@ -5,7 +5,7 @@
             "Name": true,
             "SupportShaderSelect": true
         },
-        "Export Directory": "C:/RLConverterServices/RLConverter/TempData/Convert/2dd6f5b6572ee125/JICb5a7210f2834c02d3",
+        "Export Directory": "C:/RLConverterServices/RLConverter/TempData/Convert/f24e32c9fae4f4c/JICb5a7210f2834c02d3",
         "Object": {
             "party-m-0001": {
                 "Generation": "ActorScan",
@@ -969,7 +969,7 @@
                                         ]
                                     },
                                     "Base Color": {
-                                        "Texture Path": "./party-m-0001.fbm/Character_Pbr_Diffuse.png",
+                                        "Texture Path": "Character_Pbr_Diffuse.png",
                                         "Strength": 100.0,
                                         "Offset": [
                                             0.0,
@@ -1005,7 +1005,7 @@
                                         ]
                                     },
                                     "Opacity": {
-                                        "Texture Path": "./party-m-0001.fbm/Character_Pbr_Diffuse.png",
+                                        "Texture Path": "Character_Pbr_Diffuse.png",
                                         "Strength": 100.0,
                                         "Offset": [
                                             0.0,
@@ -1017,7 +1017,7 @@
                                         ]
                                     },
                                     "Normal": {
-                                        "Texture Path": "./party-m-0001.fbm/Character_Pbr_Normal.jpg",
+                                        "Texture Path": "Character_Pbr_Normal.jpg",
                                         "Strength": 100.0,
                                         "Offset": [
                                             0.0,
