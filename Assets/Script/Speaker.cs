@@ -59,12 +59,34 @@ namespace VerbalProcess
 
         public void HandleAudioChunkReceived(byte[] pcmData)
         {
-            if (pcmData == null || pcmData.Length < 4) return;
+            int validBytes = pcmData.Length - (pcmData.Length % 4);
+            if (validBytes == 0) return;
+            float[] floatArray = new float[validBytes / 4];
 
             // 최적화: 개별 형변환 대신 BlockCopy로 메모리 통째로 복사 (초고속)
-            int sampleCount = pcmData.Length / 4;
-            float[] floatArray = new float[sampleCount];
-            Buffer.BlockCopy(pcmData, 0, floatArray, 0, pcmData.Length);
+            Buffer.BlockCopy(pcmData, 0, floatArray, 0, validBytes);
+
+            // 🌟 2~3ms 페이드 인/아웃 최적화 (패킷 경계 팝핑/클릭 노이즈 방어)
+            int fadeLengthSamples = Mathf.RoundToInt(serverSampleRate * 0.0025f); // 약 2.5ms 상당의 샘플 개수
+            int actualFadeLength = Mathf.Min(fadeLengthSamples, floatArray.Length / 2);
+
+            if (actualFadeLength > 0)
+            {
+                // Fade In (청크 시작부 점진적 볼륨 상승)
+                for (int i = 0; i < actualFadeLength; i++)
+                {
+                    float factor = (float)i / actualFadeLength;
+                    floatArray[i] *= factor;
+                }
+
+                // Fade Out (청크 종료부 점진적 볼륨 하강)
+                for (int i = 0; i < actualFadeLength; i++)
+                {
+                    int index = floatArray.Length - 1 - i;
+                    float factor = (float)i / actualFadeLength;
+                    floatArray[index] *= factor;
+                }
+            }
 
             _audioChunkQueue.Enqueue(floatArray);
             _playbackFinishedEventFired = false;
