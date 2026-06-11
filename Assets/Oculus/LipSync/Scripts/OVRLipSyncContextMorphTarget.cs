@@ -200,6 +200,7 @@ public class OVRLipSyncContextMorphTarget : MonoBehaviour
     /// <param name="arg1">Arg1.</param>
     void CheckVisemeKey(KeyCode key, int viseme, int amount)
     {
+        /*
         if (Input.GetKeyDown(key))
         {
             lipsyncContext.SetVisemeBlend(visemeToBlendTargets[viseme], amount);
@@ -208,6 +209,7 @@ public class OVRLipSyncContextMorphTarget : MonoBehaviour
         {
             lipsyncContext.SetVisemeBlend(visemeToBlendTargets[viseme], 0);
         }
+        */
     }
 
     /// <summary>
@@ -215,6 +217,7 @@ public class OVRLipSyncContextMorphTarget : MonoBehaviour
     /// </summary>
     void CheckLaughterKey()
     {
+        /*
         if (Input.GetKeyDown(laughterKey))
         {
             lipsyncContext.SetLaughterBlend(100);
@@ -223,5 +226,6 @@ public class OVRLipSyncContextMorphTarget : MonoBehaviour
         {
             lipsyncContext.SetLaughterBlend(0);
         }
+        */
     }
 }
