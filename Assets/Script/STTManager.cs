@@ -22,6 +22,7 @@ namespace VerbalProcess
         private ClientWebSocket _webSocket;
         private CancellationTokenSource _cts;
         private bool _isFirstChunk = true;
+        private bool _isConnecting = false;
 
         private readonly SemaphoreSlim _connectLock = new SemaphoreSlim(1, 1); // 웹소켓 연결에 따른 세마포어
         private readonly SemaphoreSlim _sendLock = new SemaphoreSlim(1, 1); // 데이터 전송에 따른 세마포어
@@ -39,20 +40,25 @@ namespace VerbalProcess
 
         public async Task ConnectAsync()
         {
-            // 이미 연결된 경우 빠른 탈출 (락 없이)
+            // 이미 연결 중이거나 연결된 경우 빠른 탈출
             if (_webSocket?.State == WebSocketState.Open) return;
+            if (_isConnecting) return;
 
             await _connectLock.WaitAsync();
             try
             {
-                // 락 획득 후 재확인 (선행 호출이 이미 연결했을 수 있음)
                 if (_webSocket?.State == WebSocketState.Open) return;
+                _isConnecting = true;
 
                 _cts?.Cancel();
                 _webSocket?.Dispose();
 
                 _webSocket = new ClientWebSocket();
                 _cts = new CancellationTokenSource();
+
+                // 🌟 오디오 스트리밍 최적화: 버퍼 크기를 8KB로 조절하여 레이턴시 단축 및 네이글 알고리즘 완화
+                _webSocket.Options.SetBuffer(8192, 8192);
+                _webSocket.Options.KeepAliveInterval = TimeSpan.FromSeconds(10);
 
                 await _webSocket.ConnectAsync(new Uri(wsUrl), _cts.Token);
                 Debug.Log("[STT] WebSocket Connected!");
@@ -61,10 +67,25 @@ namespace VerbalProcess
             catch (Exception e)
             {
                 Debug.LogError($"[STT] Connection Error: {e.Message}");
+                _ = ScheduleReconnectAsync();
             }
             finally
             {
-                _connectLock.Release(); // 예외 발생해도 반드시 해제
+                _isConnecting = false;
+                _connectLock.Release();
+            }
+        }
+
+        private async Task ScheduleReconnectAsync()
+        {
+            if (_cts == null || _cts.IsCancellationRequested) return;
+            
+            // 3초 대기 후 자동 재연결 시도
+            await Task.Delay(3000, _cts.Token);
+            if (_webSocket?.State != WebSocketState.Open)
+            {
+                Debug.Log("[STT] Attempting to reconnect to STT Worker...");
+                await ConnectAsync();
             }
         }
 
@@ -103,6 +124,10 @@ namespace VerbalProcess
                     new ArraySegment<byte>(audioBytes),
                     WebSocketMessageType.Binary, true, _cts.Token);
             }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[STT] Failed to send audio chunk: {e.Message}");
+            }
             finally
             {
                 _sendLock.Release();
@@ -131,6 +156,10 @@ namespace VerbalProcess
                 
                 _isFirstChunk = true;
             }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[STT] Failed to send end utterance: {e.Message}");
+            }
             finally
             {
                 _sendLock.Release();
@@ -139,7 +168,7 @@ namespace VerbalProcess
 
         private async Task ReceiveLoop()
         {
-            byte[] buffer = new byte[1024 * 512]; //일단 임시방편으로 버퍼 크기 늘림
+            byte[] buffer = new byte[1024 * 32];
             using (var ms = new System.IO.MemoryStream())
             {
                 while (_webSocket.State == WebSocketState.Open)
@@ -158,6 +187,7 @@ namespace VerbalProcess
                         if (result.MessageType == WebSocketMessageType.Close)
                         {
                             await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, _cts.Token);
+                            _ = ScheduleReconnectAsync();
                             break;
                         }
 
@@ -200,8 +230,8 @@ namespace VerbalProcess
                     }
                     catch (Exception e)
                     {
-                        if (_webSocket.State == WebSocketState.Open)
-                            Debug.LogWarning($"WebSocket Receive Error: {e.Message}");
+                        Debug.LogError($"[STT] Receive Loop Error: {e.Message}");
+                        _ = ScheduleReconnectAsync();
                         break;
                     }
                 }
