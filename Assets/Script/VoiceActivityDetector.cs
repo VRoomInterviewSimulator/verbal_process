@@ -202,8 +202,16 @@ namespace VerbalProcess
             int silenceSamples = (int)(silenceDurationThreshold * sampleRate);
             int utteranceEndSample = (currentPosition - silenceSamples + micClip.samples) % micClip.samples;
 
-            // AudioUtils를 사용하여 실제 발화 구간만 추출
-            AudioClip trimmedClip = AudioUtils.TrimAudio(micClip, lastChunkEndSample, utteranceEndSample);
+            // 🌟 방어 코드: 반올림 오차 및 프레임 지연으로 인해 utteranceEndSample이 lastChunkEndSample과 너무 가깝거나 
+            // 미세하게 역전되어 버퍼 전체(300초)를 한 바퀴 도는 현상을 방지합니다.
+            AudioClip trimmedClip = null;
+            int sampleDifference = (utteranceEndSample - lastChunkEndSample + micClip.samples) % micClip.samples;
+            
+            // 0.05초(800샘플) 이상의 유의미한 잔여 데이터가 남았을 때만 마지막 청크 전송
+            if (sampleDifference > 800 && sampleDifference < (micClip.samples - 800))
+            {
+                trimmedClip = AudioUtils.TrimAudio(micClip, lastChunkEndSample, utteranceEndSample);
+            }
 
             float duration = Time.time - utteranceStartTime - silenceDurationThreshold;
             float avgRms = rmsSamples.Count > 0 ? rmsSamples.Average() : 0f;
@@ -215,8 +223,17 @@ namespace VerbalProcess
                 averageVolume = avgRms
             };
 
+            // 유효한 마지막 잔여 조각이 있는 경우 서버 전송 이벤트 발생
+            if (trimmedClip != null)
+            {
+                OnAudioChunkCaptured?.Invoke(trimmedClip);
+                Debug.Log($"[VAD] Final tail chunk sent. Length: {trimmedClip.length:F2}s");
+            }
+
             OnUtteranceEnded?.Invoke(features);
-            Debug.Log($"Speaking Ended. Trimmed Clip Length: {trimmedClip?.length}s, Avg Volume: {features.averageVolume}");
+            
+            float clipLength = trimmedClip != null ? trimmedClip.length : 0f;
+            Debug.Log($"Speaking Ended. Trimmed Clip Length: {clipLength:F2}s, Avg Volume: {features.averageVolume}");
 
             // 발화가 끝나면 다음 입력을 막기 위해 스스로를 비활성화 (Barge-in 미사용 시)
             this.enabled = false;

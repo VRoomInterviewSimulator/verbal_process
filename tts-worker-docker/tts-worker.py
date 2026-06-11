@@ -161,11 +161,11 @@ async def response_generator(user_text: str):
                             sentence = sentences[i].strip()
                             if sentence:
                                 audio_chunk = await asyncio.to_thread(synthesize_audio, sentence)
-                                if audio_chunk: yield audio_chunk
+                                if audio_chunk: yield sentence, audio_chunk
                         sentence_buffer = sentences[-1]
             if sentence_buffer.strip():
                 audio_chunk = await asyncio.to_thread(synthesize_audio, sentence_buffer.strip())
-                if audio_chunk: yield audio_chunk
+                if audio_chunk: yield sentence_buffer.strip(), audio_chunk
     except Exception as e:
         print(f"[Error] response_generator failed: {e}")
 
@@ -206,8 +206,13 @@ app = FastAPI(lifespan=lifespan)
 async def process_text_to_audio(request: TTSRequest):
     if not request.text:
         raise HTTPException(status_code=400, detail="Text is empty")
+    
+    async def audio_only_generator():
+        async for _, audio_chunk in response_generator(request.text):
+            yield audio_chunk
+
     return StreamingResponse(
-        response_generator(request.text),
+        audio_only_generator(),
         media_type="application/octet-stream" 
     )
 
@@ -224,7 +229,10 @@ async def websocket_endpoint(websocket: WebSocket):
             
             if text:
                 # response_generator를 통해 생성되는 오디오 바이트 청크를 실시간 전송
-                async for audio_chunk in response_generator(text):
+                async for sentence, audio_chunk in response_generator(text):
+                    # 먼저 자막 텍스트 정보 전송
+                    await websocket.send_json({"type": "subtitle", "text": sentence})
+                    # 그 다음 오디오 바이너리 전송
                     await websocket.send_bytes(audio_chunk)
                 
                 # 합성 완료 신호 전송 (연결을 끊지 않고 스트림 종료만 통보)

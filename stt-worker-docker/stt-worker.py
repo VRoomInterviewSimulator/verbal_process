@@ -180,6 +180,9 @@ async def websocket_endpoint(websocket: WebSocket):
                                                     event = json.loads(msg)
                                                     if event.get("type") == "end":
                                                         break
+                                                    elif event.get("type") == "subtitle":
+                                                        # Unity WebSocket으로 자막 데이터 릴레이
+                                                        await websocket.send_text(msg)
                                                 except json.JSONDecodeError:
                                                     pass
                                             else:

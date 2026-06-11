@@ -18,6 +18,7 @@ namespace VerbalProcess
         public Action<FinalResponse> OnTranscriptionReceived; // 최종 결과 수신
         public Action<byte[]> OnAudioChunkReceived; // 서버로부터 오디오 청크(Raw PCM) 수신 시 발생
         public Action OnAudioStreamEnded; // 서버에서 모든 오디오 스트리밍이 완료되었을 때 발생
+        public Action<string> OnSubtitleReceived; // 서버로부터 자막 텍스트 수신 시 발생
 
         private ClientWebSocket _webSocket;
         private CancellationTokenSource _cts;
@@ -217,6 +218,11 @@ namespace VerbalProcess
                                     FinalResponse response = JsonUtility.FromJson<FinalResponse>(message);
                                     OnTranscriptionReceived?.Invoke(response);
                                 }
+                                else if (msg.type == "subtitle")
+                                {
+                                    SubtitleMessage subMsg = JsonUtility.FromJson<SubtitleMessage>(message);
+                                    OnSubtitleReceived?.Invoke(subMsg.text);
+                                }
                                 else if (msg.type == "tts_end")
                                 {
                                     OnAudioStreamEnded?.Invoke();
@@ -241,6 +247,12 @@ namespace VerbalProcess
         [Serializable]
         public class ServerMessage {
             public string type;
+        }
+
+        [Serializable]
+        public class SubtitleMessage {
+            public string type;
+            public string text;
         }
 
         [Serializable]

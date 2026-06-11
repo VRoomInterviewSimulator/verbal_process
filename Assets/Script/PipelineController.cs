@@ -11,6 +11,7 @@ namespace VerbalProcess
         [SerializeField] private VoiceActivityDetector vad;
         [SerializeField] private STTManager sttManager;
         [SerializeField] private Speaker speaker;
+        [SerializeField] private TMPro.TMP_Text subtitleText; // UI 자막 텍스트 컴포넌트 (선택 사항)
 
         private void OnEnable()
         {
@@ -34,7 +35,9 @@ namespace VerbalProcess
                 if (speaker != null)
                 {
                     sttManager.OnAudioChunkReceived += speaker.HandleAudioChunkReceived;
+                    sttManager.OnSubtitleReceived += speaker.HandleSubtitleReceived;
                     speaker.OnPlaybackFinished += HandlePlaybackFinished;
+                    speaker.OnSubtitleTextChanged += HandleSubtitleTextChanged;
                 }
             }
         }
@@ -57,7 +60,9 @@ namespace VerbalProcess
                 if (speaker != null)
                 {
                     sttManager.OnAudioChunkReceived -= speaker.HandleAudioChunkReceived;
+                    sttManager.OnSubtitleReceived -= speaker.HandleSubtitleReceived;
                     speaker.OnPlaybackFinished -= HandlePlaybackFinished;
+                    speaker.OnSubtitleTextChanged -= HandleSubtitleTextChanged;
                 }
             }
         }
@@ -109,6 +114,18 @@ namespace VerbalProcess
             {
                 vad.enabled = true;
                 Debug.Log("[Pipeline] Speaker finished. VAD re-enabled.");
+            }
+        }
+
+        private void HandleSubtitleTextChanged(string text)
+        {
+            if (subtitleText != null)
+            {
+                subtitleText.text = text;
+            }
+            if (!string.IsNullOrEmpty(text))
+            {
+                //Debug.Log($"[Subtitle Display] {text}");
             }
         }
 
