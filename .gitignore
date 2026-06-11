@@ -84,3 +84,9 @@ crashlytics-build.properties
 *.onnx
 *.bin
 *.tiktoken
+
+# Antigravity related folders
+antigravity/
+.gemini/
+.agents/
+gemini.md

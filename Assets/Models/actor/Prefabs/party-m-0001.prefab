@@ -1,0 +1,1041 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &2729561290230351317
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 0}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7743534115708328879, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: 415a8da6ba9b2154786ff289049fff6d, type: 2}
+    - target: {fileID: 919132149155446097, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+      propertyPath: m_Name
+      value: party-m-0001
+      objectReference: {fileID: 0}
+    - target: {fileID: 5866666021909216657, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+      propertyPath: m_Avatar
+      value: 
+      objectReference: {fileID: 9000000, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+    - target: {fileID: 5866666021909216657, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 9100000, guid: 248d230b5a0fadd4facf203f73934edf, type: 2}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 759823042612122474, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 7899632233878010534}
+    - targetCorrespondingSourceObject: {fileID: 759823042612122474, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 3630473621680026712}
+  m_SourcePrefab: {fileID: 100100000, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+--- !u!4 &327370769008729614 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -6815542234175579173, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+  m_PrefabInstance: {fileID: 2729561290230351317}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &3124452775173537008 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1062023463908538661, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+  m_PrefabInstance: {fileID: 2729561290230351317}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &3416603190896563903 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 759823042612122474, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+  m_PrefabInstance: {fileID: 2729561290230351317}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &7899632233878010534
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3416603190896563903}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0967f6b1e9e2473498d927ac3a034fe5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: soupday.cc3_unity_tools.project_runtime::Reallusion.Runtime.BoneDriver
+  baseBodySmr: {fileID: 3560140824719155588}
+  glossary:
+    ExpressionsByBone:
+    - BoneName: CC_Base_JawRoot
+      BoneTransform: {fileID: 5671311613487229030}
+      BoneMatch: 2
+      RefPositionArr:
+      - -0.014276914
+      - 0.025390139
+      - 0.0000004150229
+      RefRotationArr:
+      - -0.000050385457
+      - 0.000050875416
+      - -0.7070907
+      - 0.70712286
+      RefPosition: {x: -0.014276914, y: 0.025390139, z: 0.0000004150229}
+      RefRotation: {x: -0.000050385457, y: 0.000050875416, z: -0.7070907, w: 0.70712286}
+      Expressions:
+      - ExpressionName: V_Open
+        BlendShapeIndex: 0
+        isViseme: 1
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - 0
+        - 0
+        - -0.13919044
+        - 0.9902656
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: -0.13919044, w: 0.9902656}
+      - ExpressionName: V_Tight
+        BlendShapeIndex: 4
+        isViseme: 1
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - 0
+        - 0
+        - 0.008939895
+        - 0.99996006
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: 0.008939895, w: 0.99996006}
+      - ExpressionName: Mouth_Open
+        BlendShapeIndex: 67
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - 0
+        - 0
+        - -0.14782682
+        - 0.9890132
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: -0.14782682, w: 0.9890132}
+      - ExpressionName: Turn_Jaw_Down
+        BlendShapeIndex: 127
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - 0
+        - 0
+        - -0.30062634
+        - 0.95374167
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: -0.30062634, w: 0.95374167}
+      - ExpressionName: Turn_Jaw_L
+        BlendShapeIndex: 128
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - -0.044116702
+        - 0.07007153
+        - 0.0056659007
+        - 0.9965498
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: -0.044116702, y: 0.07007153, z: 0.0056659007, w: 0.9965498}
+      - ExpressionName: Turn_Jaw_R
+        BlendShapeIndex: 129
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - 0.044116057
+        - -0.07006827
+        - 0.005638716
+        - 0.9965502
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0.044116057, y: -0.07006827, z: 0.005638716, w: 0.9965502}
+      - ExpressionName: Move_Jaw_Down
+        BlendShapeIndex: 130
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - 0
+        - 0
+        - -0.30062634
+        - 0.95374167
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: -0.30062634, w: 0.95374167}
+      - ExpressionName: Move_Jaw_L
+        BlendShapeIndex: 131
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - -0.044116702
+        - 0.07007153
+        - 0.0056659007
+        - 0.9965498
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: -0.044116702, y: 0.07007153, z: 0.0056659007, w: 0.9965498}
+      - ExpressionName: Move_Jaw_R
+        BlendShapeIndex: 132
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - 0.044116057
+        - -0.07006827
+        - 0.005638716
+        - 0.9965502
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0.044116057, y: -0.07006827, z: 0.005638716, w: 0.9965502}
+      - ExpressionName: A25_Jaw_Open
+        BlendShapeIndex: 92
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - -0.000039180515
+        - -0.000030755997
+        - -0.000035777655
+        RotationArr:
+        - -0.000015498079
+        - 0.000027450591
+        - -0.1736704
+        - 0.98480386
+        Translate: {x: -0.000039180515, y: -0.000030755997, z: -0.000035777655}
+        Rotation: {x: -0.000015498079, y: 0.000027450591, z: -0.1736704, w: 0.98480386}
+      - ExpressionName: A27_Jaw_Left
+        BlendShapeIndex: 94
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - -0.000039076804
+        - 0.0019692443
+        - -0.000035753248
+        RotationArr:
+        - -0.000015768162
+        - -0.00000017183994
+        - -0.00002261998
+        - 1
+        Translate: {x: -0.000039076804, y: 0.0019692443, z: -0.000035753248}
+        Rotation: {x: -0.000015768162, y: -0.00000017183994, z: -0.00002261998, w: 1}
+      - ExpressionName: A28_Jaw_Right
+        BlendShapeIndex: 95
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - -0.000039076804
+        - 0.0019692443
+        - -0.000035753248
+        RotationArr:
+        - -0.000015768162
+        - -0.00000017183994
+        - -0.00002261998
+        - 1
+        Translate: {x: -0.000039076804, y: 0.0019692443, z: -0.000035753248}
+        Rotation: {x: -0.000015768162, y: -0.00000017183994, z: -0.00002261998, w: 1}
+    - BoneName: CC_Base_Head
+      BoneTransform: {fileID: 3124452775173537008}
+      BoneMatch: 6
+      RefPositionArr:
+      - -0.0000006641425
+      - 0.052207153
+      - 0.010214799
+      RefRotationArr:
+      - -0.117474765
+      - -0.000036982165
+      - -0.000000417022
+      - 0.9930759
+      RefPosition: {x: -0.0000006641425, y: 0.052207153, z: 0.010214799}
+      RefRotation: {x: -0.117474765, y: -0.000036982165, z: -0.000000417022, w: 0.9930759}
+      Expressions:
+      - ExpressionName: Head_Turn_Up
+        BlendShapeIndex: 121
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - -0.19936791
+        - 0
+        - 0
+        - 0.9799247
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: -0.19936791, y: 0, z: 0, w: 0.9799247}
+      - ExpressionName: Head_Turn_Down
+        BlendShapeIndex: 122
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - 0.10452845
+        - 0
+        - 0
+        - 0.99452186
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0.10452845, y: 0, z: 0, w: 0.99452186}
+      - ExpressionName: Head_Turn_L
+        BlendShapeIndex: 123
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - 0
+        - -0.3640781
+        - 0.04208502
+        - 0.930417
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: -0.3640781, z: 0.04208502, w: 0.930417}
+      - ExpressionName: Head_Turn_R
+        BlendShapeIndex: 124
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - 0
+        - 0.36407557
+        - -0.042085264
+        - 0.930418
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0.36407557, z: -0.042085264, w: 0.930418}
+      - ExpressionName: Head_Tilt_L
+        BlendShapeIndex: 125
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - 0
+        - 0.0070108534
+        - 0.06064455
+        - 0.99813485
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0.0070108534, z: 0.06064455, w: 0.99813485}
+      - ExpressionName: Head_Tilt_R
+        BlendShapeIndex: 126
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - 0
+        - -0.0070108264
+        - -0.060644656
+        - 0.9981348
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: -0.0070108264, z: -0.060644656, w: 0.9981348}
+    - BoneName: CC_Base_L_Eye
+      BoneTransform: {fileID: 327370769008729614}
+      BoneMatch: 1
+      RefPositionArr:
+      - -0.07279843
+      - 0.07186783
+      - 0.02445056
+      RefRotationArr:
+      - 0.7071068
+      - -0.0000008474127
+      - -0.7071068
+      - -0.0000008474127
+      RefPosition: {x: -0.07279843, y: 0.07186783, z: 0.02445056}
+      RefRotation: {x: 0.7071068, y: -0.0000008474127, z: -0.7071068, w: -0.0000008474127}
+      Expressions:
+      - ExpressionName: Left_Eyeball_Look_R
+        BlendShapeIndex: 133
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - -0.000000014901161
+        - 0.000000059604645
+        - 0.18270428
+        - 0.9831679
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: -0.000000014901161, y: 0.000000059604645, z: 0.18270428, w: 0.9831679}
+      - ExpressionName: Left_Eyeball_Look_L
+        BlendShapeIndex: 134
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - 0
+        - -0.00000002980232
+        - -0.16525215
+        - 0.9862513
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: -0.00000002980232, z: -0.16525215, w: 0.9862513}
+      - ExpressionName: Left_Eyeball_Look_Down
+        BlendShapeIndex: 135
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - 0.1514433
+        - 0
+        - 1.03341335e-10
+        - 0.9884659
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0.1514433, y: 0, z: 1.03341335e-10, w: 0.9884659}
+      - ExpressionName: Left_Eyeball_Look_Up
+        BlendShapeIndex: 136
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - -0.091766946
+        - 0
+        - -3.6095568e-10
+        - 0.9957804
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: -0.091766946, y: 0, z: -3.6095568e-10, w: 0.9957804}
+    - BoneName: CC_Base_R_Eye
+      BoneTransform: {fileID: 6055845147611734053}
+      BoneMatch: 1
+      RefPositionArr:
+      - -0.07279949
+      - 0.07085766
+      - -0.033059657
+      RefRotationArr:
+      - 0.7071068
+      - 0.0000036721217
+      - -0.7071068
+      - 0.0000036721217
+      RefPosition: {x: -0.07279949, y: 0.07085766, z: -0.033059657}
+      RefRotation: {x: 0.7071068, y: 0.0000036721217, z: -0.7071068, w: 0.0000036721217}
+      Expressions:
+      - ExpressionName: Right_Eyeball_Look_R
+        BlendShapeIndex: 137
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - -0.000000007450581
+        - -0.000000029802322
+        - 0.18270428
+        - 0.9831679
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: -0.000000007450581, y: -0.000000029802322, z: 0.18270428, w: 0.9831679}
+      - ExpressionName: Right_Eyeball_Look_L
+        BlendShapeIndex: 138
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - 0
+        - 0
+        - -0.16525213
+        - 0.9862513
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0, y: 0, z: -0.16525213, w: 0.9862513}
+      - ExpressionName: Right_Eyeball_Look_Down
+        BlendShapeIndex: 139
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - 0.15144332
+        - 0
+        - -7.9580795e-12
+        - 0.98846596
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: 0.15144332, y: 0, z: -7.9580795e-12, w: 0.98846596}
+      - ExpressionName: Right_Eyeball_Look_Up
+        BlendShapeIndex: 140
+        isViseme: 0
+        isConstraint: 0
+        TranslateArr:
+        - 0
+        - 0
+        - 0
+        RotationArr:
+        - -0.091766946
+        - 0
+        - 5.4888e-10
+        - 0.9957804
+        Translate: {x: 0, y: 0, z: 0}
+        Rotation: {x: -0.091766946, y: 0, z: 5.4888e-10, w: 0.9957804}
+  constraintList: []
+  limitList: []
+  constraintTargets: 
+  blendShapeTargets: []
+  blendShapeCount: 141
+  atlas:
+  - idx: 0
+    lastValue: -1000
+    blendTargets: []
+  - idx: 1
+    lastValue: -1000
+    blendTargets: []
+  - idx: 2
+    lastValue: -1000
+    blendTargets: []
+  - idx: 3
+    lastValue: -1000
+    blendTargets: []
+  - idx: 4
+    lastValue: -1000
+    blendTargets: []
+  - idx: 5
+    lastValue: -1000
+    blendTargets: []
+  - idx: 6
+    lastValue: -1000
+    blendTargets: []
+  - idx: 7
+    lastValue: -1000
+    blendTargets: []
+  - idx: 8
+    lastValue: -1000
+    blendTargets: []
+  - idx: 9
+    lastValue: -1000
+    blendTargets: []
+  - idx: 10
+    lastValue: -1000
+    blendTargets: []
+  - idx: 11
+    lastValue: -1000
+    blendTargets: []
+  - idx: 12
+    lastValue: -1000
+    blendTargets: []
+  - idx: 13
+    lastValue: -1000
+    blendTargets: []
+  - idx: 14
+    lastValue: -1000
+    blendTargets: []
+  - idx: 15
+    lastValue: -1000
+    blendTargets: []
+  - idx: 16
+    lastValue: -1000
+    blendTargets: []
+  - idx: 17
+    lastValue: -1000
+    blendTargets: []
+  - idx: 18
+    lastValue: -1000
+    blendTargets: []
+  - idx: 19
+    lastValue: -1000
+    blendTargets: []
+  - idx: 20
+    lastValue: -1000
+    blendTargets: []
+  - idx: 21
+    lastValue: -1000
+    blendTargets: []
+  - idx: 22
+    lastValue: -1000
+    blendTargets: []
+  - idx: 23
+    lastValue: -1000
+    blendTargets: []
+  - idx: 24
+    lastValue: -1000
+    blendTargets: []
+  - idx: 25
+    lastValue: -1000
+    blendTargets: []
+  - idx: 26
+    lastValue: -1000
+    blendTargets: []
+  - idx: 27
+    lastValue: -1000
+    blendTargets: []
+  - idx: 28
+    lastValue: -1000
+    blendTargets: []
+  - idx: 29
+    lastValue: -1000
+    blendTargets: []
+  - idx: 30
+    lastValue: -1000
+    blendTargets: []
+  - idx: 31
+    lastValue: -1000
+    blendTargets: []
+  - idx: 32
+    lastValue: -1000
+    blendTargets: []
+  - idx: 33
+    lastValue: -1000
+    blendTargets: []
+  - idx: 34
+    lastValue: -1000
+    blendTargets: []
+  - idx: 35
+    lastValue: -1000
+    blendTargets: []
+  - idx: 36
+    lastValue: -1000
+    blendTargets: []
+  - idx: 37
+    lastValue: -1000
+    blendTargets: []
+  - idx: 38
+    lastValue: -1000
+    blendTargets: []
+  - idx: 39
+    lastValue: -1000
+    blendTargets: []
+  - idx: 40
+    lastValue: -1000
+    blendTargets: []
+  - idx: 41
+    lastValue: -1000
+    blendTargets: []
+  - idx: 42
+    lastValue: -1000
+    blendTargets: []
+  - idx: 43
+    lastValue: -1000
+    blendTargets: []
+  - idx: 44
+    lastValue: -1000
+    blendTargets: []
+  - idx: 45
+    lastValue: -1000
+    blendTargets: []
+  - idx: 46
+    lastValue: -1000
+    blendTargets: []
+  - idx: 47
+    lastValue: -1000
+    blendTargets: []
+  - idx: 48
+    lastValue: -1000
+    blendTargets: []
+  - idx: 49
+    lastValue: -1000
+    blendTargets: []
+  - idx: 50
+    lastValue: -1000
+    blendTargets: []
+  - idx: 51
+    lastValue: -1000
+    blendTargets: []
+  - idx: 52
+    lastValue: -1000
+    blendTargets: []
+  - idx: 53
+    lastValue: -1000
+    blendTargets: []
+  - idx: 54
+    lastValue: -1000
+    blendTargets: []
+  - idx: 55
+    lastValue: -1000
+    blendTargets: []
+  - idx: 56
+    lastValue: -1000
+    blendTargets: []
+  - idx: 57
+    lastValue: -1000
+    blendTargets: []
+  - idx: 58
+    lastValue: -1000
+    blendTargets: []
+  - idx: 59
+    lastValue: -1000
+    blendTargets: []
+  - idx: 60
+    lastValue: -1000
+    blendTargets: []
+  - idx: 61
+    lastValue: -1000
+    blendTargets: []
+  - idx: 62
+    lastValue: -1000
+    blendTargets: []
+  - idx: 63
+    lastValue: -1000
+    blendTargets: []
+  - idx: 64
+    lastValue: -1000
+    blendTargets: []
+  - idx: 65
+    lastValue: -1000
+    blendTargets: []
+  - idx: 66
+    lastValue: -1000
+    blendTargets: []
+  - idx: 67
+    lastValue: -1000
+    blendTargets: []
+  - idx: 68
+    lastValue: -1000
+    blendTargets: []
+  - idx: 69
+    lastValue: -1000
+    blendTargets: []
+  - idx: 70
+    lastValue: -1000
+    blendTargets: []
+  - idx: 71
+    lastValue: -1000
+    blendTargets: []
+  - idx: 72
+    lastValue: -1000
+    blendTargets: []
+  - idx: 73
+    lastValue: -1000
+    blendTargets: []
+  - idx: 74
+    lastValue: -1000
+    blendTargets: []
+  - idx: 75
+    lastValue: -1000
+    blendTargets: []
+  - idx: 76
+    lastValue: -1000
+    blendTargets: []
+  - idx: 77
+    lastValue: -1000
+    blendTargets: []
+  - idx: 78
+    lastValue: -1000
+    blendTargets: []
+  - idx: 79
+    lastValue: -1000
+    blendTargets: []
+  - idx: 80
+    lastValue: -1000
+    blendTargets: []
+  - idx: 81
+    lastValue: -1000
+    blendTargets: []
+  - idx: 82
+    lastValue: -1000
+    blendTargets: []
+  - idx: 83
+    lastValue: -1000
+    blendTargets: []
+  - idx: 84
+    lastValue: -1000
+    blendTargets: []
+  - idx: 85
+    lastValue: -1000
+    blendTargets: []
+  - idx: 86
+    lastValue: -1000
+    blendTargets: []
+  - idx: 87
+    lastValue: -1000
+    blendTargets: []
+  - idx: 88
+    lastValue: -1000
+    blendTargets: []
+  - idx: 89
+    lastValue: -1000
+    blendTargets: []
+  - idx: 90
+    lastValue: -1000
+    blendTargets: []
+  - idx: 91
+    lastValue: -1000
+    blendTargets: []
+  - idx: 92
+    lastValue: -1000
+    blendTargets: []
+  - idx: 93
+    lastValue: -1000
+    blendTargets: []
+  - idx: 94
+    lastValue: -1000
+    blendTargets: []
+  - idx: 95
+    lastValue: -1000
+    blendTargets: []
+  - idx: 96
+    lastValue: -1000
+    blendTargets: []
+  - idx: 97
+    lastValue: -1000
+    blendTargets: []
+  - idx: 98
+    lastValue: -1000
+    blendTargets: []
+  - idx: 99
+    lastValue: -1000
+    blendTargets: []
+  - idx: 100
+    lastValue: -1000
+    blendTargets: []
+  - idx: 101
+    lastValue: -1000
+    blendTargets: []
+  - idx: 102
+    lastValue: -1000
+    blendTargets: []
+  - idx: 103
+    lastValue: -1000
+    blendTargets: []
+  - idx: 104
+    lastValue: -1000
+    blendTargets: []
+  - idx: 105
+    lastValue: -1000
+    blendTargets: []
+  - idx: 106
+    lastValue: -1000
+    blendTargets: []
+  - idx: 107
+    lastValue: -1000
+    blendTargets: []
+  - idx: 108
+    lastValue: -1000
+    blendTargets: []
+  - idx: 109
+    lastValue: -1000
+    blendTargets: []
+  - idx: 110
+    lastValue: -1000
+    blendTargets: []
+  - idx: 111
+    lastValue: -1000
+    blendTargets: []
+  - idx: 112
+    lastValue: -1000
+    blendTargets: []
+  - idx: 113
+    lastValue: -1000
+    blendTargets: []
+  - idx: 114
+    lastValue: -1000
+    blendTargets: []
+  - idx: 115
+    lastValue: -1000
+    blendTargets: []
+  - idx: 116
+    lastValue: -1000
+    blendTargets: []
+  - idx: 117
+    lastValue: -1000
+    blendTargets: []
+  - idx: 118
+    lastValue: -1000
+    blendTargets: []
+  - idx: 119
+    lastValue: -1000
+    blendTargets: []
+  - idx: 120
+    lastValue: -1000
+    blendTargets: []
+  - idx: 121
+    lastValue: -1000
+    blendTargets: []
+  - idx: 122
+    lastValue: -1000
+    blendTargets: []
+  - idx: 123
+    lastValue: -1000
+    blendTargets: []
+  - idx: 124
+    lastValue: -1000
+    blendTargets: []
+  - idx: 125
+    lastValue: -1000
+    blendTargets: []
+  - idx: 126
+    lastValue: -1000
+    blendTargets: []
+  - idx: 127
+    lastValue: -1000
+    blendTargets: []
+  - idx: 128
+    lastValue: -1000
+    blendTargets: []
+  - idx: 129
+    lastValue: -1000
+    blendTargets: []
+  - idx: 130
+    lastValue: -1000
+    blendTargets: []
+  - idx: 131
+    lastValue: -1000
+    blendTargets: []
+  - idx: 132
+    lastValue: -1000
+    blendTargets: []
+  - idx: 133
+    lastValue: -1000
+    blendTargets: []
+  - idx: 134
+    lastValue: -1000
+    blendTargets: []
+  - idx: 135
+    lastValue: -1000
+    blendTargets: []
+  - idx: 136
+    lastValue: -1000
+    blendTargets: []
+  - idx: 137
+    lastValue: -1000
+    blendTargets: []
+  - idx: 138
+    lastValue: -1000
+    blendTargets: []
+  - idx: 139
+    lastValue: -1000
+    blendTargets: []
+  - idx: 140
+    lastValue: -1000
+    blendTargets: []
+  glossaryString: '{"ExpressionsByBone":[{"BoneName":"CC_Base_JawRoot","RefPositionArr":[-0.0142769143,0.0253901388,4.150229E-07],"RefRotationArr":[-5.03854571E-05,5.08754165E-05,-0.7070907,0.707122862],"Expressions":[{"ExpressionName":"V_Open","BlendShapeIndex":0,"isViseme":true,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[0.0,0.0,-0.139190435,0.9902656]},{"ExpressionName":"V_Tight","BlendShapeIndex":4,"isViseme":true,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[0.0,0.0,0.008939895,0.999960065]},{"ExpressionName":"Mouth_Open","BlendShapeIndex":67,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[0.0,0.0,-0.147826821,0.9890132]},{"ExpressionName":"Turn_Jaw_Down","BlendShapeIndex":127,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[0.0,0.0,-0.300626338,0.95374167]},{"ExpressionName":"Turn_Jaw_L","BlendShapeIndex":128,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[-0.0441167019,0.07007153,0.00566590065,0.9965498]},{"ExpressionName":"Turn_Jaw_R","BlendShapeIndex":129,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[0.0441160575,-0.07006827,0.005638716,0.9965502]},{"ExpressionName":"Move_Jaw_Down","BlendShapeIndex":130,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[0.0,0.0,-0.300626338,0.95374167]},{"ExpressionName":"Move_Jaw_L","BlendShapeIndex":131,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[-0.0441167019,0.07007153,0.00566590065,0.9965498]},{"ExpressionName":"Move_Jaw_R","BlendShapeIndex":132,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[0.0441160575,-0.07006827,0.005638716,0.9965502]},{"ExpressionName":"A25_Jaw_Open","BlendShapeIndex":92,"isViseme":false,"isConstraint":false,"TranslateArr":[-3.91805152E-05,-3.07559967E-05,-3.57776553E-05],"RotationArr":[-1.54980789E-05,2.7450591E-05,-0.1736704,0.984803855]},{"ExpressionName":"A27_Jaw_Left","BlendShapeIndex":94,"isViseme":false,"isConstraint":false,"TranslateArr":[-3.90768037E-05,0.00196924433,-3.57532481E-05],"RotationArr":[-1.57681625E-05,-1.71839943E-07,-2.261998E-05,1.0]},{"ExpressionName":"A28_Jaw_Right","BlendShapeIndex":95,"isViseme":false,"isConstraint":false,"TranslateArr":[-3.90768037E-05,0.00196924433,-3.57532481E-05],"RotationArr":[-1.57681625E-05,-1.71839943E-07,-2.261998E-05,1.0]}]},{"BoneName":"CC_Base_Head","RefPositionArr":[-6.641425E-07,0.0522071533,0.0102147991],"RefRotationArr":[-0.117474765,-3.69821646E-05,-4.17022E-07,0.9930759],"Expressions":[{"ExpressionName":"Head_Turn_Up","BlendShapeIndex":121,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[-0.199367911,0.0,0.0,0.9799247]},{"ExpressionName":"Head_Turn_Down","BlendShapeIndex":122,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[0.104528449,0.0,0.0,0.994521856]},{"ExpressionName":"Head_Turn_L","BlendShapeIndex":123,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[0.0,-0.3640781,0.04208502,0.930417]},{"ExpressionName":"Head_Turn_R","BlendShapeIndex":124,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[0.0,0.364075571,-0.0420852639,0.930418]},{"ExpressionName":"Head_Tilt_L","BlendShapeIndex":125,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[0.0,0.00701085338,0.06064455,0.998134851]},{"ExpressionName":"Head_Tilt_R","BlendShapeIndex":126,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[0.0,-0.00701082638,-0.0606446564,0.9981348]}]},{"BoneName":"CC_Base_L_Eye","RefPositionArr":[-0.07279843,0.07186783,0.02445056],"RefRotationArr":[0.7071068,-8.474127E-07,-0.7071068,-8.474127E-07],"Expressions":[{"ExpressionName":"Left_Eyeball_Look_R","BlendShapeIndex":133,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[-1.49011612E-08,5.96046448E-08,0.182704285,0.9831679]},{"ExpressionName":"Left_Eyeball_Look_L","BlendShapeIndex":134,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[0.0,-2.980232E-08,-0.165252149,0.9862513]},{"ExpressionName":"Left_Eyeball_Look_Down","BlendShapeIndex":135,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[0.1514433,0.0,1.03341335E-10,0.9884659]},{"ExpressionName":"Left_Eyeball_Look_Up","BlendShapeIndex":136,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[-0.091766946,0.0,-3.60955682E-10,0.9957804]}]},{"BoneName":"CC_Base_R_Eye","RefPositionArr":[-0.07279949,0.07085766,-0.0330596566],"RefRotationArr":[0.7071068,3.67212169E-06,-0.7071068,3.67212169E-06],"Expressions":[{"ExpressionName":"Right_Eyeball_Look_R","BlendShapeIndex":137,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[-7.450581E-09,-2.98023224E-08,0.182704285,0.9831679]},{"ExpressionName":"Right_Eyeball_Look_L","BlendShapeIndex":138,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[0.0,0.0,-0.165252134,0.9862513]},{"ExpressionName":"Right_Eyeball_Look_Down","BlendShapeIndex":139,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[0.151443318,0.0,-7.95807951E-12,0.988465965]},{"ExpressionName":"Right_Eyeball_Look_Up","BlendShapeIndex":140,"isViseme":false,"isConstraint":false,"TranslateArr":[0.0,0.0,0.0],"RotationArr":[-0.091766946,0.0,5.4888E-10,0.9957804]}]}]}'
+  constraintString: 
+  bonesSetup: 1
+  expressionsSetup: 1
+  constraintSetup: 0
+  bones: 1
+  expressions: 1
+  constraint: 0
+  amplify: 0
+  visemePower: 1
+  visemeScale: 1
+  visemesByRenderer:
+  - smr: {fileID: 3560140824719155588}
+    visemeIndicies: 00000000010000000200000004000000050000000600000007000000
+    lastSetValues:
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+    - 0
+  driveEyes: 1
+  driveJaw: 1
+  driveNeck: 1
+  driveTongue: 1
+  driveTeeth: 1
+  driveHead: 0
+--- !u!114 &3630473621680026712
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3416603190896563903}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a95044baf65b10c4e89b246d2f881ac9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Oculus.VR::OVRFaceExpressions
+--- !u!137 &3560140824719155588 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -7743534115708328879, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+  m_PrefabInstance: {fileID: 2729561290230351317}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &5671311613487229030 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -1489052837976314445, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+  m_PrefabInstance: {fileID: 2729561290230351317}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &6055845147611734053 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 8208925893792228848, guid: 07c271330e23db44d940f0ec24f41e48, type: 3}
+  m_PrefabInstance: {fileID: 2729561290230351317}
+  m_PrefabAsset: {fileID: 0}

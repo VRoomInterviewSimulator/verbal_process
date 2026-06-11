@@ -1,4 +1,6 @@
 ﻿<Solution>
+  <Project Path="Oculus.LipSync.csproj" />
   <Project Path="Assembly-CSharp.csproj" />
   <Project Path="Assembly-CSharp-Editor.csproj" />
+  <Project Path="Oculus.LipSync.Editor.csproj" />
 </Solution>
