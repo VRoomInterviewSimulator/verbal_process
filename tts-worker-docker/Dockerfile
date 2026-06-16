@@ -1,5 +1,5 @@
 # 1. CUDA + Ubuntu
-FROM nvidia/cuda:12.4.1-devel-ubuntu22.04
+FROM nvidia/cuda:12.8.1-devel-ubuntu22.04
 
 # 시스템 패키지
 RUN apt-get update && apt-get install -y \
@@ -30,7 +30,7 @@ RUN python3 -m pip install --no-cache-dir --upgrade pip
 # PyTorch
 RUN python3 -m pip install --no-cache-dir \
     torch torchaudio \
-    --index-url https://download.pytorch.org/whl/cu124
+    --index-url https://download.pytorch.org/whl/cu128
 
 # requirements
 RUN python3 -m pip install --no-cache-dir -r requirements.txt
