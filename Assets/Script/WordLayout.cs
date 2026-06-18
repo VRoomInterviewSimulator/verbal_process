@@ -17,10 +17,12 @@ namespace VerbalProcess
         private Vector2 postionToInstantiate;
         private float layoutWidth;
         private RectTransform rectTransform;
+        private float initialHeight;
 
         private void Start()
         {
             rectTransform = GetComponent<RectTransform>();
+            initialHeight = rectTransform.rect.height; // 에디터 상에 설정된 기본 높이를 기억합니다.
             Initialize();
         }
 
@@ -30,18 +32,19 @@ namespace VerbalProcess
             if (rectTransform == null)
                 rectTransform = GetComponent<RectTransform>();
 
-            // sizeDelta.x 대신 rect.width를 사용하여 Stretch 앵커에서도 실제 가로 크기를 안전하게 가져옵니다.
-            layoutWidth = rectTransform.rect.width;
-
             // UI 좌표계상 아래로 내려갈수록 Y좌표는 마이너스(-) 방향이 되므로 verticalPadding을 빼줍니다.
             postionToInstantiate = new Vector2(leftPadding, -verticalPadding);
 
-            // 초기 크기 설정 (기본 패딩만큼 잡아둠)
-            rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, verticalPadding);
+            // 칩이 초기화되면 높이도 에디터 상의 원래 기본 높이로 복원해 줍니다.
+            if (initialHeight > 0)
+            {
+                rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, initialHeight);
+            }
         }
 
         public void AddChips(WordChip chip)
         {
+            layoutWidth = rectTransform.rect.width; // Start에는 넣으면 안됨
             RectTransform chipRect = chip.GetComponent<RectTransform>();
             float chipWidth = chipRect.rect.width;
 
@@ -60,18 +63,23 @@ namespace VerbalProcess
             postionToInstantiate.x += (chipWidth + horizontalGap);
         }
 
-        // 모든 칩 배치가 끝난 후 Content(자신)의 높이를 배치 결과에 맞추어 동적으로 확장합니다.
-        public void UpdateLayoutHeight()
+        // 단어 칩이 추가되어 실제 배치 영역이 Rect의 높이보다 커지면 세로 크기를 갱신합니다.
+        public void updateheight()
         {
-            // postionToInstantiate.y는 음수값이므로 절대값으로 변환하고,
-            // 마지막 줄의 높이(verticalGap)와 아래 패딩(verticalPadding)을 더해 전체 높이를 구합니다.
-            float finalHeight = Mathf.Abs(postionToInstantiate.y) + verticalGap + verticalPadding;
-            rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, finalHeight);
+            // postionToInstantiate.y는 음수이므로 절대값으로 바꾼 뒤, 
+            // 마지막 라인의 높이(verticalGap)와 하단 여백(verticalPadding)을 더해 총 필요한 높이를 구합니다.
+            float neededHeight = Mathf.Abs(postionToInstantiate.y) + verticalGap + verticalPadding;
+
+            // 실제 필요한 높이가 현재 RectTransform의 높이보다 클 경우에만 확장합니다.
+            if (neededHeight > rectTransform.rect.height)
+            {
+                rectTransform.sizeDelta = new Vector2(rectTransform.sizeDelta.x, neededHeight);
+            }
         }
 
         public void ClearChips()
         {
-            // Clear 시 다시 초기 상태 좌표와 높이로 되돌립니다.
+            // Clear 시 다시 초기 상태 좌표로 되돌립니다.
             Initialize();
         }
     }

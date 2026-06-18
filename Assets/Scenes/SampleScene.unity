@@ -1167,7 +1167,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1279103035}
   m_HandleRect: {fileID: 1279103034}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 1
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -1260,6 +1260,59 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &935675554
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 935675555}
+  - component: {fileID: 935675556}
+  m_Layer: 5
+  m_Name: content
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &935675555
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 935675554}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1668924334}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: -591.4992, y: 191.49907}
+  m_SizeDelta: {x: 1200, y: 100}
+  m_Pivot: {x: 0, y: 1}
+--- !u!114 &935675556
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 935675554}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 985aad1eb64e54242bef6a09686a4bcc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::VerbalProcessP.WordLayout
+  verticalGap: 50
+  horizontalGap: 10
+  leftPadding: 30
+  rightPadding: 30
+  verticalPadding: 20
 --- !u!1 &1022688728
 GameObject:
   m_ObjectHideFlags: 0
@@ -1391,14 +1444,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VerbalProcess.SubtitleCorrectionPanel
   panelRoot: {fileID: 1627169508}
-  chipsContainer: {fileID: 1668924334}
+  chipsContainer: {fileID: 935675555}
   guideText: {fileID: 1835189868}
   wordChipPrefab: {fileID: 6961822305852386924, guid: e6fd760e9261f264cb0d5f64070e504d, type: 3}
   btnSendAnyway: {fileID: 1731022304}
   btnDiscard: {fileID: 186210787}
   btnReSpeak: {fileID: 300964025}
   lowConfidenceThreshold: 0.75
-  wordLayout: {fileID: 1668924338}
+  wordLayout: {fileID: 935675556}
 --- !u!114 &1069347014
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1411,7 +1464,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.ScrollRect
-  m_Content: {fileID: 0}
+  m_Content: {fileID: 935675555}
   m_Horizontal: 1
   m_Vertical: 1
   m_MovementType: 1
@@ -1585,8 +1638,8 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1022688730}
   m_HandleRect: {fileID: 1022688729}
   m_Direction: 0
-  m_Value: 0
-  m_Size: 1
+  m_Value: -0.000053854936
+  m_Size: 0.9858334
   m_NumberOfSteps: 0
   m_OnValueChanged:
     m_PersistentCalls:
@@ -2219,7 +2272,6 @@ GameObject:
   - component: {fileID: 1668924337}
   - component: {fileID: 1668924336}
   - component: {fileID: 1668924335}
-  - component: {fileID: 1668924338}
   m_Layer: 5
   m_Name: Viewport
   m_TagString: Untagged
@@ -2238,7 +2290,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 935675555}
   m_Father: {fileID: 1069347012}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -2297,23 +2350,6 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1668924333}
   m_CullTransparentMesh: 1
---- !u!114 &1668924338
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1668924333}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 985aad1eb64e54242bef6a09686a4bcc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::VerbalProcessP.WordLayout
-  verticalGap: 50
-  horizontalGap: 10
-  leftPadding: 30
-  rightPadding: 30
-  verticalPadding: 20
 --- !u!1 &1707543274
 GameObject:
   m_ObjectHideFlags: 0

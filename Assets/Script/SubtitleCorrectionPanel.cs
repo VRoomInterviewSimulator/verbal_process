@@ -109,6 +109,9 @@ namespace VerbalProcess
                     {
                         wordLayout.AddChips(chip);
                     }
+
+                    // 모든 단어 칩의 정렬이 완료된 뒤 Content의 전체 높이를 업데이트하여 스크롤이 동작하게 합니다.
+                    wordLayout.updateheight();
                 }
             }
 
