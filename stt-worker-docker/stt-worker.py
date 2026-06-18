@@ -130,83 +130,198 @@ async def websocket_endpoint(websocket: WebSocket):
             elif "text" in message:
                 print(f"Raw Unity JSON: {message}")
                 data = json.loads(message["text"])
+                msg_type = data.get("type")
                 
-                if data.get("type") == "utterance_end":
-                    if len(audio_buffer) > 0:
-                        print(f"Utterance End received. Transcribing {len(audio_buffer)} bytes...")
-                        
+                if msg_type == "discard":
+                    print("Discard request received. Clearing buffers.")
+                    audio_buffer = bytearray()
+                    consecutive_silence_count = 0
+                    silero_state = np.zeros((2, 1, 128), dtype=np.float32)
+                    try:
+                        await websocket.send_json({"type": "tts_end"})
+                    except:
+                        pass
+                    continue
+
+                elif msg_type == "send_anyway":
+                    text_to_send = data.get("text", "")
+                    features = data.get("features")
+                    final_dto = {
+                        "sttText": text_to_send,
+                        "speakingTime": features.get("speakingTime", 0) if features else 0,
+                        "pauseCount": features.get("pauseCount", 0) if features else 0,
+                        "averageVolume": features.get("averageVolume", 0) if features else 0
+                    }
+                    print(f"Send Anyway request received. Directly processing TTS for: {text_to_send}")
+                    await websocket.send_json({"type": "final", "data": final_dto})
+                    
+                    if text_to_send:
+                        # TTS/LLM 전송 파트 수행 (아래의 공통 TTS 로직으로 이동하기 위해 변수 설정)
+                        final_text = text_to_send
+                    else:
+                        print("Empty text for send_anyway. Skipping TTS.")
                         try:
-                            # WAV 헤더를 제외한 순수 PCM 추출 및 float32 변환
-                            raw_pcm = audio_buffer[44:] if audio_buffer[:4] == b'RIFF' else audio_buffer
-                            audio_np = np.frombuffer(raw_pcm, dtype=np.int16).astype(np.float32) / 32768.0
+                            await websocket.send_json({"type": "tts_end"})
+                        except:
+                            pass
+                        continue
+
+                elif msg_type == "utterance_end":
+                    if len(audio_buffer) == 0:
+                        # 오디오 데이터가 없는 경우 VAD 해제 및 무시
+                        try:
+                            await websocket.send_json({"type": "tts_end"})
+                        except:
+                            pass
+                        continue
+
+                    print(f"Utterance End received. Transcribing {len(audio_buffer)} bytes...")
+                    try:
+                        # WAV 헤더를 제외한 순수 PCM 추출 및 float32 변환
+                        raw_pcm = audio_buffer[44:] if audio_buffer[:4] == b'RIFF' else audio_buffer
+                        audio_np = np.frombuffer(raw_pcm, dtype=np.int16).astype(np.float32) / 32768.0
+                        
+                        # Whisper 추론 (비동기 스레드에서 실행하여 소켓 블로킹 방지)
+                        def transcribe_task(audio):
+                            segments, _ = model.transcribe(
+                                audio, 
+                                language="ko", 
+                                beam_size=5, 
+                                vad_filter=True, 
+                                word_timestamps=True
+                            )
+                            words_info = []
+                            full_text_segments = []
+                            for segment in segments:
+                                full_text_segments.append(segment.text)
+                                if segment.words:
+                                    for w in segment.words:
+                                        words_info.append({
+                                            "word": w.word.strip(),
+                                            "probability": w.probability
+                                        })
+                            return " ".join(full_text_segments).strip(), words_info
+
+                        final_text, words_info = await asyncio.to_thread(transcribe_task, audio_np)
+                        features = data.get("features")
+                        is_correction = data.get("mode") == "correction"
+                        
+                        # 단어 병합/치환 로직 (수정 모드인 경우)
+                        if is_correction:
+                            original_words = data.get("original_words", [])
+                            target_range = data.get("target_range", [0, 0])
+                            new_words = [w["word"] for w in words_info]
                             
-                            # Whisper 추론 (비동기 스레드에서 실행하여 소켓 블로킹 방지)
-                            def transcribe_task(audio):
-                                segments, _ = model.transcribe(audio, language="ko", beam_size=5, vad_filter=True)
-                                return " ".join([segment.text for segment in segments]).strip()
+                            start_idx, end_idx = target_range[0], target_range[1]
+                            if 0 <= start_idx <= end_idx < len(original_words):
+                                merged_words = original_words[:start_idx] + new_words + original_words[end_idx+1:]
+                            else:
+                                merged_words = new_words if new_words else original_words
+                                
+                            final_text = " ".join(merged_words).strip()
+                            print(f"[Correction Merged] Original: {original_words} -> Target Range: {target_range} -> New: {new_words} -> Result: {final_text}")
+                        
+                        # 평균 신뢰도 계산
+                        avg_confidence = sum([w["probability"] for w in words_info]) / len(words_info) if words_info else 1.0
+                        print(f"STT Success: '{final_text}' (Confidence: {avg_confidence:.2f})")
 
-                            final_text = await asyncio.to_thread(transcribe_task, audio_np)
-
-                            features = data.get("features")
+                        # 수정 모드가 아닌 일반 모드일 때, 신뢰도가 임계값 미만이면 교정 요청 전송
+                        if not is_correction and avg_confidence < 0.75:
+                            print(f"Low confidence ({avg_confidence:.2f} < 0.75). Sending correction request to Unity.")
                             final_dto = {
                                 "sttText": final_text,
-                                "speakingTime": features["speakingTime"],
-                                "pauseCount": features["pauseCount"],
-                                "averageVolume": features["averageVolume"]
+                                "speakingTime": features["speakingTime"] if features else 0.0,
+                                "pauseCount": features["pauseCount"] if features else 0,
+                                "averageVolume": features["averageVolume"] if features else 0.0
                             }
+                            words_list = [w["word"] for w in words_info]
+                            confidences_list = [w["probability"] for w in words_info]
                             
-                            print(f"Success: {final_text}")
+                            await websocket.send_json({
+                                "type": "correction_request",
+                                "data": final_dto,
+                                "words": words_list,
+                                "word_confidences": confidences_list
+                            })
                             
-                            # 1. Unity에 STT 결과 JSON 전송 (UI 업데이트 및 피드백용)
-                            await websocket.send_json({"type": "final", "data": final_dto})
-
-                            if not final_text:
-                                print("STT 결과 문자열이 빈 값입니다. TTS/LLM 요청을 스킵합니다.")
-                            else:
-                                # 2. TTS Worker에 요청하여 오디오 스트림 수신 및 패스스루 (1회 재시도 보장)
-                                print(f"Requesting TTS for: {final_text}")
-                                for attempt in range(2):
-                                    try:
-                                        # 소켓 연결이 유실되었거나 아직 맺어지지 않았다면 동적 재연결
-                                        if tts_ws is None or tts_ws.state != websockets.State.OPEN:
-                                            print("TTS connection offline or closed. Reconnecting...")
-                                            tts_ws = await websockets.connect(TTS_WORKER_WS_URL, max_size=None)
-
-                                        await tts_ws.send(json.dumps({"text": final_text}))
-                                        
-                                        async for msg in tts_ws:
-                                            if isinstance(msg, str):
-                                                try:
-                                                    event = json.loads(msg)
-                                                    if event.get("type") == "end":
-                                                        break
-                                                    elif event.get("type") == "subtitle":
-                                                        # Unity WebSocket으로 자막 데이터 릴레이
-                                                        await websocket.send_text(msg)
-                                                except json.JSONDecodeError:
-                                                    pass
-                                            else:
-                                                await websocket.send_bytes(msg)
-                                                    
-                                        print("TTS Stream finished.")
-                                        break  # 성공 시 루프 종료
-                                    except Exception as tts_e:
-                                        print(f"[Attempt {attempt+1}] TTS Stream / Connection failed: {tts_e}")
-                                        tts_ws = None
-
-                        except Exception as e:
-                            print(f"Transcription/Processing Error: {e}")
-                        
-                        finally:
-                            # 성공/실패 여부와 상관없이 Unity의 VAD 잠금을 해제하기 위해 종료 신호 전송
+                            # VAD 잠금 해제를 위한 tts_end 전송 및 버퍼 초기화 후 스킵
                             try:
                                 await websocket.send_json({"type": "tts_end"})
                             except:
                                 pass
-                            
                             audio_buffer = bytearray()
                             consecutive_silence_count = 0
-                            silero_state = np.zeros((2, 1, 128), dtype=np.float32) # VAD 상태 초기화
+                            silero_state = np.zeros((2, 1, 128), dtype=np.float32)
+                            continue
+
+                        # 일반 모드이면서 신뢰도가 양호하거나, 수정 모드인 경우 다음 LLM/TTS 파이프라인으로 전송
+                        final_dto = {
+                            "sttText": final_text,
+                            "speakingTime": features["speakingTime"] if features else 0.0,
+                            "pauseCount": features["pauseCount"] if features else 0,
+                            "averageVolume": features["averageVolume"] if features else 0.0
+                        }
+                        await websocket.send_json({"type": "final", "data": final_dto})
+
+                    except Exception as e:
+                        print(f"Transcription/Processing Error: {e}")
+                        try:
+                            await websocket.send_json({"type": "tts_end"})
+                        except:
+                            pass
+                        audio_buffer = bytearray()
+                        consecutive_silence_count = 0
+                        silero_state = np.zeros((2, 1, 128), dtype=np.float32)
+                        continue
+
+                else:
+                    # 알 수 없는 메시지 유형 무시
+                    continue
+
+                # ==================== TTS / LLM Streaming Pipeline ====================
+                if not final_text:
+                    print("STT 결과 문자열이 빈 값입니다. TTS/LLM 요청을 스킵합니다.")
+                else:
+                    # 2. TTS Worker에 요청하여 오디오 스트림 수신 및 패스스루 (1회 재시도 보장)
+                    print(f"Requesting TTS for: {final_text}")
+                    for attempt in range(2):
+                        try:
+                            # 소켓 연결이 유실되었거나 아직 맺어지지 않았다면 동적 재연결
+                            if tts_ws is None or tts_ws.state != websockets.State.OPEN:
+                                print("TTS connection offline or closed. Reconnecting...")
+                                tts_ws = await websockets.connect(TTS_WORKER_WS_URL, max_size=None)
+
+                            await tts_ws.send(json.dumps({"text": final_text}))
+                            
+                            async for msg in tts_ws:
+                                if isinstance(msg, str):
+                                    try:
+                                        event = json.loads(msg)
+                                        if event.get("type") == "end":
+                                            break
+                                        elif event.get("type") == "subtitle":
+                                            # Unity WebSocket으로 자막 데이터 릴레이
+                                            await websocket.send_text(msg)
+                                    except json.JSONDecodeError:
+                                        pass
+                                else:
+                                    await websocket.send_bytes(msg)
+                                        
+                            print("TTS Stream finished.")
+                            break  # 성공 시 루프 종료
+                        except Exception as tts_e:
+                            print(f"[Attempt {attempt+1}] TTS Stream / Connection failed: {tts_e}")
+                            tts_ws = None
+
+                # 성공/실패 여부와 상관없이 Unity의 VAD 잠금을 해제하기 위해 종료 신호 전송
+                try:
+                    await websocket.send_json({"type": "tts_end"})
+                except:
+                    pass
+                
+                audio_buffer = bytearray()
+                consecutive_silence_count = 0
+                silero_state = np.zeros((2, 1, 128), dtype=np.float32) # VAD 상태 초기화
 
     except WebSocketDisconnect:
         print("WebSocket Disconnected")

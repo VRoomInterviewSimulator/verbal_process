@@ -14,7 +14,7 @@ namespace VerbalProcess
     {
         [Header("Settings")]
         [SerializeField] private float threshold = 0.02f;
-        [SerializeField] private float silenceDurationThreshold = 1.5f;
+        private const float silenceDurationThreshold = 1.5f;
         [SerializeField] private float chunkSendInterval = 0.3f; // 0.3초마다 청크 전송
         [SerializeField] private int sampleRate = 16000; //whisper는 16khz를 사용함
         [SerializeField] private int bufferLengthSeconds = 300;
@@ -174,7 +174,7 @@ namespace VerbalProcess
             if (isSpeaking)
             {
                 Debug.Log("[VAD] Forced End triggered by external signal.");
-                EndSpeaking(Microphone.GetPosition(micDevice));
+                EndSpeaking(Microphone.GetPosition(micDevice), 0.9f);
                 // 타이머 리셋하여 중복 종료 방지
                 silenceTimer = 0f;
             }
@@ -194,12 +194,12 @@ namespace VerbalProcess
             }
         }
 
-        private void EndSpeaking(int currentPosition)
+        private void EndSpeaking(int currentPosition, float silenceDuration = silenceDurationThreshold)
         {
             isSpeaking = false;
             
             // 침묵 임계값만큼 이전이 실제 발화가 종료된 시점
-            int silenceSamples = (int)(silenceDurationThreshold * sampleRate);
+            int silenceSamples = (int)(silenceDuration * sampleRate);
             int utteranceEndSample = (currentPosition - silenceSamples + micClip.samples) % micClip.samples;
 
             // 🌟 방어 코드: 반올림 오차 및 프레임 지연으로 인해 utteranceEndSample이 lastChunkEndSample과 너무 가깝거나 

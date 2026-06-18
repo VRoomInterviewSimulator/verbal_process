@@ -19,6 +19,7 @@ namespace VerbalProcess
         public Action<byte[]> OnAudioChunkReceived; // 서버로부터 오디오 청크(Raw PCM) 수신 시 발생
         public Action OnAudioStreamEnded; // 서버에서 모든 오디오 스트리밍이 완료되었을 때 발생
         public Action<string> OnSubtitleReceived; // 서버로부터 자막 텍스트 수신 시 발생
+        public Action<CorrectionRequestMessage> OnCorrectionRequested; // 저신뢰 교정 요청 수신 시 발생
 
         private ClientWebSocket _webSocket;
         private CancellationTokenSource _cts;
@@ -167,6 +168,113 @@ namespace VerbalProcess
             }
         }
 
+        /// <summary>
+        /// 재발화 교정 종료 신호와 메타데이터를 전송
+        /// </summary>
+        public async Task SendCorrectionEndUtteranceAsync(FeatureData features, int startIdx, int endIdx, string[] originalWords)
+        {
+            if (_webSocket?.State != WebSocketState.Open) return;
+
+            await _sendLock.WaitAsync();
+            try
+            {
+                string wordsJson = "[]";
+                if (originalWords != null && originalWords.Length > 0)
+                {
+                    StringBuilder sb = new StringBuilder("[");
+                    for (int i = 0; i < originalWords.Length; i++)
+                    {
+                        sb.Append($"\"{originalWords[i].Replace("\"", "\\\"")}\"");
+                        if (i < originalWords.Length - 1) sb.Append(",");
+                    }
+                    sb.Append("]");
+                    wordsJson = sb.ToString();
+                }
+
+                string json = $"{{\"type\":\"utterance_end\"," +
+                              $"\"mode\":\"correction\"," +
+                              $"\"target_range\":[{startIdx},{endIdx}]," +
+                              $"\"original_words\":{wordsJson}," +
+                              $"\"features\":{{" +
+                              $"\"speakingTime\":{features.speakingTime:F2}," +
+                              $"\"pauseCount\":{features.pauseCount}," +
+                              $"\"averageVolume\":{features.averageVolume}}}}}";
+
+                byte[] bytes = Encoding.UTF8.GetBytes(json);
+                await _webSocket.SendAsync(
+                    new ArraySegment<byte>(bytes),
+                    WebSocketMessageType.Text, true, _cts.Token);
+                
+                _isFirstChunk = true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[STT] Failed to send correction end utterance: {e.Message}");
+            }
+            finally
+            {
+                _sendLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// 수정 없이 그대로 질문을 전송
+        /// </summary>
+        public async Task SendAnywayAsync(string text, FeatureData features)
+        {
+            if (_webSocket?.State != WebSocketState.Open) return;
+
+            await _sendLock.WaitAsync();
+            try
+            {
+                string json = $"{{\"type\":\"send_anyway\"," +
+                              $"\"text\":\"{text.Replace("\"", "\\\"")}\"," +
+                              $"\"features\":{{" +
+                              $"\"speakingTime\":{features.speakingTime:F2}," +
+                              $"\"pauseCount\":{features.pauseCount}," +
+                              $"\"averageVolume\":{features.averageVolume}}}}}";
+
+                byte[] bytes = Encoding.UTF8.GetBytes(json);
+                await _webSocket.SendAsync(
+                    new ArraySegment<byte>(bytes),
+                    WebSocketMessageType.Text, true, _cts.Token);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[STT] Failed to send send_anyway command: {e.Message}");
+            }
+            finally
+            {
+                _sendLock.Release();
+            }
+        }
+
+        /// <summary>
+        /// 교정을 포기하고 전체 발화를 폐기
+        /// </summary>
+        public async Task SendDiscardAsync()
+        {
+            if (_webSocket?.State != WebSocketState.Open) return;
+
+            await _sendLock.WaitAsync();
+            try
+            {
+                string json = "{\"type\":\"discard\"}";
+                byte[] bytes = Encoding.UTF8.GetBytes(json);
+                await _webSocket.SendAsync(
+                    new ArraySegment<byte>(bytes),
+                    WebSocketMessageType.Text, true, _cts.Token);
+            }
+            catch (Exception e)
+            {
+                Debug.LogWarning($"[STT] Failed to send discard command: {e.Message}");
+            }
+            finally
+            {
+                _sendLock.Release();
+            }
+        }
+
         private async Task ReceiveLoop()
         {
             byte[] buffer = new byte[1024 * 32];
@@ -218,6 +326,11 @@ namespace VerbalProcess
                                     FinalResponse response = JsonUtility.FromJson<FinalResponse>(message);
                                     OnTranscriptionReceived?.Invoke(response);
                                 }
+                                else if (msg.type == "correction_request")
+                                {
+                                    CorrectionRequestMessage corrMsg = JsonUtility.FromJson<CorrectionRequestMessage>(message);
+                                    OnCorrectionRequested?.Invoke(corrMsg);
+                                }
                                 else if (msg.type == "subtitle")
                                 {
                                     SubtitleMessage subMsg = JsonUtility.FromJson<SubtitleMessage>(message);
@@ -267,6 +380,14 @@ namespace VerbalProcess
             public float speakingTime;
             public int pauseCount;
             public float averageVolume;
+        }
+
+        [Serializable]
+        public class CorrectionRequestMessage {
+            public string type;
+            public TranscriptionData data;
+            public string[] words;
+            public float[] word_confidences;
         }
     }
 }

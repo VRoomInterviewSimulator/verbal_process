@@ -12,6 +12,15 @@ namespace VerbalProcess
         [SerializeField] private STTManager sttManager;
         [SerializeField] private Speaker speaker;
         [SerializeField] private TMPro.TMP_Text subtitleText; // UI 자막 텍스트 컴포넌트 (선택 사항)
+        [SerializeField] private SubtitleCorrectionPanel correctionPanel; // 자막 교정 UI 패널
+
+        // 교정 관련 상태 변수들
+        private bool _isCorrectionMode = false;
+        private int _correctionStartIdx = -1;
+        private int _correctionEndIdx = -1;
+        private string[] _originalWords;
+        private FeatureData _originalFeatures;
+        private string _originalTextForCorrection = "";
 
         private void OnEnable()
         {
@@ -31,6 +40,7 @@ namespace VerbalProcess
                 sttManager.OnServerRequestEnd += HandleServerRequestEnd;
                 sttManager.OnTranscriptionReceived += HandleTranscriptionReceived;
                 sttManager.OnAudioStreamEnded += HandleAudioStreamEnded;
+                sttManager.OnCorrectionRequested += HandleOnCorrectionRequested;
                 
                 if (speaker != null)
                 {
@@ -56,6 +66,7 @@ namespace VerbalProcess
                 sttManager.OnServerRequestEnd -= HandleServerRequestEnd;
                 sttManager.OnTranscriptionReceived -= HandleTranscriptionReceived;
                 sttManager.OnAudioStreamEnded -= HandleAudioStreamEnded;
+                sttManager.OnCorrectionRequested -= HandleOnCorrectionRequested;
 
                 if (speaker != null)
                 {
@@ -149,17 +160,105 @@ namespace VerbalProcess
 
             try
             {
-                Debug.Log("Pipeline: Utterance ended. Sending Feature via WebSocket...");
-                
-                // 데이터 패키징
-                FeatureData featureData = new FeatureData(features);
-
-                // WebSocket을 통해 발화 종료 알림 및 feature 데이터 전송
-                await sttManager.SendEndUtteranceAsync(featureData);
+                if (_isCorrectionMode)
+                {
+                    Debug.Log("[Pipeline] Re-speak completed. Sending Correction Feature via WebSocket...");
+                    FeatureData currentFeatures = new FeatureData(features);
+                    await sttManager.SendCorrectionEndUtteranceAsync(currentFeatures, _correctionStartIdx, _correctionEndIdx, _originalWords);
+                    
+                    if (correctionPanel != null) correctionPanel.Close();
+                    ResetCorrectionState();
+                }
+                else
+                {
+                    Debug.Log("Pipeline: Utterance ended. Sending Feature via WebSocket...");
+                    FeatureData featureData = new FeatureData(features);
+                    await sttManager.SendEndUtteranceAsync(featureData);
+                }
             }
             catch (Exception e)
             {
                 Debug.LogError($"Pipeline Error (End): {e.Message}");
+            }
+        }
+
+        private void HandleOnCorrectionRequested(STTManager.CorrectionRequestMessage msg)
+        {
+            Debug.Log("[Pipeline] Low confidence STT detected. Opening correction panel.");
+
+            // VAD 비활성화 (교정 UI가 떴을 때 말을 하더라도 자동으로 음성이 전송되는 것을 차단)
+            if (vad != null) vad.enabled = false;
+
+            _originalTextForCorrection = msg.data != null ? msg.data.sttText : "";
+            if (msg.data != null)
+            {
+                _originalFeatures = new FeatureData(new VoiceActivityDetector.VoiceFeatures
+                {
+                    speakingTime = msg.data.speakingTime,
+                    silenceCount = msg.data.pauseCount,
+                    averageVolume = msg.data.averageVolume
+                });
+            }
+
+            if (correctionPanel != null)
+            {
+                correctionPanel.Open(
+                    msg,
+                    HandleSendAnyway,
+                    HandleDiscardCorrection,
+                    HandleReSpeakStart
+                );
+            }
+        }
+
+        private async void HandleSendAnyway()
+        {
+            if (sttManager != null && _originalFeatures != null)
+            {
+                await sttManager.SendAnywayAsync(_originalTextForCorrection, _originalFeatures);
+            }
+            ResetCorrectionState();
+        }
+
+        private async void HandleDiscardCorrection()
+        {
+            if (sttManager != null)
+            {
+                await sttManager.SendDiscardAsync();
+            }
+            
+            // 즉시 일반 VAD 모드로 복귀
+            if (vad != null) vad.enabled = true;
+            
+            ResetCorrectionState();
+        }
+
+        private void HandleReSpeakStart(int startIdx, int endIdx, string[] words)
+        {
+            _isCorrectionMode = true;
+            _correctionStartIdx = startIdx;
+            _correctionEndIdx = endIdx;
+            _originalWords = words;
+
+            // 재발화를 녹음할 수 있도록 VAD 일시 재활성화
+            if (vad != null)
+            {
+                vad.enabled = true;
+                sttManager.ResetUtteranceState();
+            }
+        }
+
+        private void ResetCorrectionState()
+        {
+            _isCorrectionMode = false;
+            _correctionStartIdx = -1;
+            _correctionEndIdx = -1;
+            _originalWords = null;
+            _originalFeatures = null;
+            _originalTextForCorrection = "";
+            if (correctionPanel != null)
+            {
+                correctionPanel.ResetButtonInteractions();
             }
         }
     }
