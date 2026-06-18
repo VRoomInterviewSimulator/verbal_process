@@ -244,11 +244,7 @@ async def websocket_endpoint(websocket: WebSocket):
                                 "word_confidences": confidences_list
                             })
                             
-                            # VAD 잠금 해제를 위한 tts_end 전송 및 버퍼 초기화 후 스킵
-                            try:
-                                await websocket.send_json({"type": "tts_end"})
-                            except:
-                                pass
+                            # 교정 요청 단계에서는 클라이언트가 재발화하기 전까지 VAD를 꺼두어야 하므로, tts_end를 보내지 않습니다.
                             audio_buffer = bytearray()
                             consecutive_silence_count = 0
                             silero_state = np.zeros((2, 1, 128), dtype=np.float32)

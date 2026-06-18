@@ -16,6 +16,7 @@ namespace VerbalProcess
 
         // 교정 관련 상태 변수들
         private bool _isCorrectionMode = false;
+        private bool _isCorrectionPanelOpen = false; // 현재 교정 패널이 열려 있는지 여부
         private int _correctionStartIdx = -1;
         private int _correctionEndIdx = -1;
         private string[] _originalWords;
@@ -120,6 +121,13 @@ namespace VerbalProcess
 
         private void HandlePlaybackFinished()
         {
+            // 교정 대기 패널이 열려 있는 상태라면 VAD를 활성화하지 않습니다.
+            if (_isCorrectionPanelOpen)
+            {
+                Debug.Log("[Pipeline] Speaker finished, but correction panel is open. VAD remains disabled.");
+                return;
+            }
+
             // AI의 모든 답변 재생이 끝났을 때 VAD를 다시 활성화하여 다음 입력을 대기합니다.
             if (vad != null)
             {
@@ -188,6 +196,7 @@ namespace VerbalProcess
 
             // VAD 비활성화 (교정 UI가 떴을 때 말을 하더라도 자동으로 음성이 전송되는 것을 차단)
             if (vad != null) vad.enabled = false;
+            _isCorrectionPanelOpen = true;
 
             _originalTextForCorrection = msg.data != null ? msg.data.sttText : "";
             if (msg.data != null)
@@ -251,6 +260,7 @@ namespace VerbalProcess
         private void ResetCorrectionState()
         {
             _isCorrectionMode = false;
+            _isCorrectionPanelOpen = false;
             _correctionStartIdx = -1;
             _correctionEndIdx = -1;
             _originalWords = null;
