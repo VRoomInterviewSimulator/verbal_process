@@ -28,9 +28,7 @@ namespace VerbalProcess
         private List<WordChip> _activeChips = new List<WordChip>();
         private STTManager.CorrectionRequestMessage _currentMessage;
 
-        // 드래그 상태 관리
-        private bool _isDragging = false;
-        private int _dragStartIdx = -1;
+        // 선택 상태 관리
         private int _selectedStartIdx = -1;
         private int _selectedEndIdx = -1;
 
@@ -69,7 +67,7 @@ namespace VerbalProcess
             _selectedEndIdx = -1;
 
             if (guideText != null)
-                guideText.text = "교정할 단어들을 드래그로 선택한 뒤, 아래 [재발화]를 눌러 다시 말해 주세요.";
+                guideText.text = "교정할 단어를 클릭하여 선택하거나, 범위(시작/끝 단어 2회 클릭)를 지정한 뒤 아래 [재발화]를 눌러 다시 말해 주세요.";
 
             // 칩 생성 및 가로 너비 측정이 정상적으로 동작하려면 부모 UI 오브젝트들이 모두 활성화(Active)된 상태여야 합니다.
             if (panelRoot != null)
@@ -146,25 +144,37 @@ namespace VerbalProcess
             }
         }
 
-        // ==================== 드래그/선택 이벤트 수신 ====================
+        // ==================== 선택 이벤트 수신 ====================
 
         public void OnChipPointerDown(WordChip clickedChip)
         {
-            _isDragging = true;
-            _dragStartIdx = clickedChip.Index;
-            UpdateSelectionRange(_dragStartIdx, _dragStartIdx);
-        }
+            int index = clickedChip.Index;
 
-        public void OnChipPointerEnter(WordChip hoveredChip)
-        {
-            if (!_isDragging) return;
-            UpdateSelectionRange(_dragStartIdx, hoveredChip.Index);
-        }
-
-        public void OnChipPointerUp(WordChip releasedChip)
-        {
-            _isDragging = false;
-            UpdateButtonStates();
+            // 상태 0: 선택된 것이 없음
+            if (_selectedStartIdx == -1 || _selectedEndIdx == -1)
+            {
+                UpdateSelectionRange(index, index);
+            }
+            // 상태 1: 단일 단어만 선택되어 있음
+            else if (_selectedStartIdx == _selectedEndIdx)
+            {
+                if (index == _selectedStartIdx)
+                {
+                    // 동일한 단어 클릭 시 선택 해제
+                    UpdateSelectionRange(-1, -1);
+                }
+                else
+                {
+                    // 다른 단어 클릭 시 범위 선택으로 확장
+                    UpdateSelectionRange(_selectedStartIdx, index);
+                }
+            }
+            // 상태 2: 이미 범위가 선택되어 있음
+            else
+            {
+                // 아무 단어나 누르면 기존 범위를 해제하고 클릭한 단어 하나만 새로 선택
+                UpdateSelectionRange(index, index);
+            }
         }
 
         private void UpdateSelectionRange(int start, int end)
@@ -177,6 +187,8 @@ namespace VerbalProcess
                 bool inRange = (i >= _selectedStartIdx && i <= _selectedEndIdx);
                 _activeChips[i].SetSelected(inRange);
             }
+
+            UpdateButtonStates();
         }
 
         // ==================== 버튼 클릭 핸들러 ====================

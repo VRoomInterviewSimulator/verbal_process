@@ -6,7 +6,7 @@ using TMPro;
 
 namespace VerbalProcess
 {
-    public class WordChip : MonoBehaviour, IPointerDownHandler, IPointerEnterHandler, IPointerUpHandler
+    public class WordChip : MonoBehaviour, IPointerDownHandler
     {
         [Header("UI References")]
         [SerializeField] private TextMeshProUGUI wordText;
@@ -71,20 +71,5 @@ namespace VerbalProcess
             }
         }
 
-        public void OnPointerEnter(PointerEventData eventData)
-        {
-            if (_panel != null)
-            {
-                _panel.OnChipPointerEnter(this);
-            }
-        }
-
-        public void OnPointerUp(PointerEventData eventData)
-        {
-            if (_panel != null)
-            {
-                _panel.OnChipPointerUp(this);
-            }
-        }
     }
 }
