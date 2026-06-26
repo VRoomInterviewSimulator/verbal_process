@@ -16,7 +16,7 @@ load_dotenv()
 app = FastAPI()
 
 # TTS Worker WebSocket URL (기본값: localhost:8001/ws/tts)
-TTS_WORKER_WS_URL = os.getenv("TTS_WORKER_WS_URL", "ws://host.docker.internal:8001/ws/tts")
+TTS_WORKER_WS_URL = os.environ.get("TTS_WORKER_WS_URL", "ws://host.docker.internal:8001/ws/tts")
 
 # 모델 로드 (Faster-Whisper & Silero VAD)
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -80,7 +80,8 @@ def validate_voice(audio_bytes):
 @app.websocket("/ws/interview")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
-    print("WebSocket Connected (PCM Stream Mode)")
+    session_id = websocket.query_params.get("session_id", "default")
+    print(f"WebSocket Connected (PCM Stream Mode) - Session ID: {session_id}")
 
     audio_buffer = bytearray()
     consecutive_silence_count = 0
@@ -92,8 +93,9 @@ async def websocket_endpoint(websocket: WebSocket):
     # TTS Worker와의 지속 WebSocket 연결 초기화
     tts_ws = None
     try:
-        tts_ws = await websockets.connect(TTS_WORKER_WS_URL, max_size=None)
-        print("Persistent connection to TTS Worker established.")
+        ws_url_with_sid = f"{TTS_WORKER_WS_URL}?session_id={session_id}"
+        tts_ws = await websockets.connect(ws_url_with_sid, max_size=None)
+        print(f"Persistent connection to TTS Worker established for session {session_id}.")
     except Exception as e:
         print(f"[Warning] Failed to establish initial connection to TTS Worker: {e}")
 
@@ -285,9 +287,10 @@ async def websocket_endpoint(websocket: WebSocket):
                             # 소켓 연결이 유실되었거나 아직 맺어지지 않았다면 동적 재연결
                             if tts_ws is None or tts_ws.state != websockets.State.OPEN:
                                 print("TTS connection offline or closed. Reconnecting...")
-                                tts_ws = await websockets.connect(TTS_WORKER_WS_URL, max_size=None)
+                                ws_url_with_sid = f"{TTS_WORKER_WS_URL}?session_id={session_id}"
+                                tts_ws = await websockets.connect(ws_url_with_sid, max_size=None)
 
-                            await tts_ws.send(json.dumps({"text": final_text}))
+                            await tts_ws.send(json.dumps({"text": final_text, "session_id": session_id}))
                             
                             async for msg in tts_ws:
                                 if isinstance(msg, str):
