@@ -104,8 +104,6 @@ if device == "cuda":
 
 print("[Init] Fish Speech 1.5 models loaded and ready.")
 
-client = OpenAI(api_key=os.environ.get("GROQ_API_KEY"), base_url="https://api.groq.com/openai/v1")
-
 class TTSRequest(BaseModel):
     text: str
 
@@ -142,32 +140,19 @@ def synthesize_audio(text: str):
             print(f"[Error] Synthesis failed: {e}")
             return b""
 
-async def response_generator(user_text: str):
+async def tts_only_generator(text: str):
     try:
-        with client.chat.completions.create(
-            model=os.environ.get("MODEL_NAME"),
-            messages=[{"role": "system", "content": os.environ.get("SYSTEM_PROMPT")}, {"role": "user", "content": user_text}],
-            stream=True
-        ) as response:
-            sentence_buffer = ""
-            for chunk in response:
-                if not chunk.choices: continue
-                content = chunk.choices[0].delta.content
-                if content:
-                    sentence_buffer += content
-                    if any(ch in content for ch in ".!?\n"):
-                        sentences = [ s for s in re.split(r'(?<=[.!?\n])',sentence_buffer) if s ]
-                        for i in range(len(sentences) - 1):
-                            sentence = sentences[i].strip()
-                            if sentence:
-                                audio_chunk = await asyncio.to_thread(synthesize_audio, sentence)
-                                if audio_chunk: yield sentence, audio_chunk
-                        sentence_buffer = sentences[-1]
-            if sentence_buffer.strip():
-                audio_chunk = await asyncio.to_thread(synthesize_audio, sentence_buffer.strip())
-                if audio_chunk: yield sentence_buffer.strip(), audio_chunk
+        # 문장부호 및 줄바꿈을 기준으로 분할
+        sentences = [s.strip() for s in re.split(r'(?<=[.!?\n])', text) if s.strip()]
+        if not sentences:
+            sentences = [text]
+            
+        for sentence in sentences:
+            audio_chunk = await asyncio.to_thread(synthesize_audio, sentence)
+            if audio_chunk:
+                yield sentence, audio_chunk
     except Exception as e:
-        print(f"[Error] response_generator failed: {e}")
+        print(f"[Error] tts_only_generator failed: {e}")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -181,12 +166,9 @@ async def lifespan(app: FastAPI):
     print("="*60)
 
     # 웜업용 더미 텍스트
-    # (실제 요청과 유사한 길이나 특수문자를 포함하면 좋습니다)
     dummy_text = "안녕하세요. 시스템 초기화를 위한 더미 테스트입니다."
 
     try:
-        # synthesize_audio 함수 강제로 한 번 실행
-        # 비동기 환경이므로 asyncio.to_thread 사용
         await asyncio.to_thread(synthesize_audio, dummy_text)
         print("="*60)
         print("[Warm-up] Compilation and warm-up successful!")
@@ -208,7 +190,7 @@ async def process_text_to_audio(request: TTSRequest):
         raise HTTPException(status_code=400, detail="Text is empty")
     
     async def audio_only_generator():
-        async for _, audio_chunk in response_generator(request.text):
+        async for _, audio_chunk in tts_only_generator(request.text):
             yield audio_chunk
 
     return StreamingResponse(
@@ -228,11 +210,10 @@ async def websocket_endpoint(websocket: WebSocket):
             text = message.get("text")
             
             if text:
-                # response_generator를 통해 생성되는 오디오 바이트 청크를 실시간 전송
-                async for sentence, audio_chunk in response_generator(text):
-                    # 먼저 자막 텍스트 정보 전송
+                async for sentence, audio_chunk in tts_only_generator(text):
+                    # 자막 텍스트 정보 전송
                     await websocket.send_json({"type": "subtitle", "text": sentence})
-                    # 그 다음 오디오 바이너리 전송
+                    # 오디오 바이너리 전송
                     await websocket.send_bytes(audio_chunk)
                 
                 # 합성 완료 신호 전송 (연결을 끊지 않고 스트림 종료만 통보)
