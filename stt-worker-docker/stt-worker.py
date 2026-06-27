@@ -16,7 +16,7 @@ load_dotenv()
 app = FastAPI()
 
 # TTS Worker WebSocket URL (기본값: localhost:8001/ws/tts)
-TTS_WORKER_WS_URL = os.environ.get("TTS_WORKER_WS_URL", "ws://host.docker.internal:8001/ws/tts")
+TTS_WORKER_WS_URL = os.getenv("TTS_WORKER_WS_URL", "ws://host.docker.internal:8001/ws/tts")
 
 # 모델 로드 (Faster-Whisper & Silero VAD)
 base_dir = os.path.dirname(os.path.abspath(__file__))
@@ -90,14 +90,55 @@ async def websocket_endpoint(websocket: WebSocket):
     
     global silero_state
 
-    # TTS Worker와의 지속 WebSocket 연결 초기화
+    # TTS Worker(백엔드)와의 지속 WebSocket 연결 및 백그라운드 릴레이 관리
     tts_ws = None
-    try:
-        ws_url_with_sid = f"{TTS_WORKER_WS_URL}?session_id={session_id}"
-        tts_ws = await websockets.connect(ws_url_with_sid, max_size=None)
-        print(f"Persistent connection to TTS Worker established for session {session_id}.")
-    except Exception as e:
-        print(f"[Warning] Failed to establish initial connection to TTS Worker: {e}")
+
+    async def get_or_connect_tts_ws():
+        nonlocal tts_ws
+        if tts_ws is None or tts_ws.state != websockets.State.OPEN:
+            print(f"[{session_id}] TTS Worker connection offline. Connecting...")
+            try:
+                ws_url_with_sid = f"{TTS_WORKER_WS_URL}?session_id={session_id}"
+                tts_ws = await websockets.connect(ws_url_with_sid, max_size=None)
+                print(f"[{session_id}] Persistent connection to TTS Worker established.")
+            except Exception as e:
+                print(f"[{session_id}] Failed to establish connection to TTS Worker: {e}")
+                tts_ws = None
+        return tts_ws
+
+    # 백그라운드 릴레이 루프 (지속 수신 및 즉각 유니티 패스스루)
+    async def tts_relay_loop():
+        nonlocal tts_ws
+        while True:
+            try:
+                ws = await get_or_connect_tts_ws()
+                if ws is None:
+                    await asyncio.sleep(1.0)
+                    continue
+
+                async for msg in ws:
+                    if isinstance(msg, str):
+                        try:
+                            event = json.loads(msg)
+                            if event.get("type") == "end":
+                                # Unity로 오디오 종료 전송
+                                await websocket.send_json({"type": "tts_end"})
+                            elif event.get("type") == "subtitle":
+                                await websocket.send_text(msg)
+                        except json.JSONDecodeError:
+                            pass
+                    else:
+                        await websocket.send_bytes(msg)
+            except websockets.exceptions.ConnectionClosed:
+                print(f"[{session_id}] TTS Worker connection closed in relay loop.")
+                tts_ws = None
+            except Exception as ex:
+                print(f"[{session_id}] Error in tts_relay_loop: {ex}")
+                tts_ws = None
+                await asyncio.sleep(1.0)
+
+    # 백그라운드 릴레이 태스크 시작
+    relay_task = asyncio.create_task(tts_relay_loop())
 
     try:
         while True:
@@ -279,44 +320,34 @@ async def websocket_endpoint(websocket: WebSocket):
                 # ==================== TTS / LLM Streaming Pipeline ====================
                 if not final_text:
                     print("STT 결과 문자열이 빈 값입니다. TTS/LLM 요청을 스킵합니다.")
+                    try:
+                        await websocket.send_json({"type": "tts_end"})
+                    except:
+                        pass
                 else:
-                    # 2. TTS Worker에 요청하여 오디오 스트림 수신 및 패스스루 (1회 재시도 보장)
+                    # 2. TTS Worker에 요청하여 백그라운드 태스크가 수신할 수 있게 전송만 수행 (1회 재시도 보장)
                     print(f"Requesting TTS for: {final_text}")
+                    sent_successfully = False
                     for attempt in range(2):
                         try:
-                            # 소켓 연결이 유실되었거나 아직 맺어지지 않았다면 동적 재연결
-                            if tts_ws is None or tts_ws.state != websockets.State.OPEN:
-                                print("TTS connection offline or closed. Reconnecting...")
-                                ws_url_with_sid = f"{TTS_WORKER_WS_URL}?session_id={session_id}"
-                                tts_ws = await websockets.connect(ws_url_with_sid, max_size=None)
-
-                            await tts_ws.send(json.dumps({"text": final_text, "session_id": session_id}))
-                            
-                            async for msg in tts_ws:
-                                if isinstance(msg, str):
-                                    try:
-                                        event = json.loads(msg)
-                                        if event.get("type") == "end":
-                                            break
-                                        elif event.get("type") == "subtitle":
-                                            # Unity WebSocket으로 자막 데이터 릴레이
-                                            await websocket.send_text(msg)
-                                    except json.JSONDecodeError:
-                                        pass
-                                else:
-                                    await websocket.send_bytes(msg)
-                                        
-                            print("TTS Stream finished.")
-                            break  # 성공 시 루프 종료
+                            ws = await get_or_connect_tts_ws()
+                            if ws is not None:
+                                await ws.send(json.dumps({"text": final_text, "session_id": session_id}))
+                                print(f"Sent text to TTS Worker: {final_text}")
+                                sent_successfully = True
+                                break
+                            else:
+                                raise Exception("TTS WebSocket is None")
                         except Exception as tts_e:
-                            print(f"[Attempt {attempt+1}] TTS Stream / Connection failed: {tts_e}")
+                            print(f"[Attempt {attempt+1}] Failed to send text to TTS Worker: {tts_e}")
                             tts_ws = None
 
-                # 성공/실패 여부와 상관없이 Unity의 VAD 잠금을 해제하기 위해 종료 신호 전송
-                try:
-                    await websocket.send_json({"type": "tts_end"})
-                except:
-                    pass
+                    if not sent_successfully:
+                        print("Failed to send text to TTS Worker after 2 attempts. Sending fallback tts_end to Unity.")
+                        try:
+                            await websocket.send_json({"type": "tts_end"})
+                        except:
+                            pass
                 
                 audio_buffer = bytearray()
                 consecutive_silence_count = 0
@@ -332,7 +363,8 @@ async def websocket_endpoint(websocket: WebSocket):
         try: await websocket.close()
         except: pass
     finally:
-        # Unity 연결 해제 시 TTS 지속 웹소켓도 함께 종료
+        # 백그라운드 태스크 종료 및 TTS 지속 웹소켓 종료
+        relay_task.cancel()
         if tts_ws is not None:
             try:
                 if tts_ws.state == websockets.State.OPEN:
