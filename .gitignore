@@ -90,3 +90,6 @@ antigravity/
 .gemini/
 .agents/
 gemini.md
+
+__pycache__/
+*.pyc
