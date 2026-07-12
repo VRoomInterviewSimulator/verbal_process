@@ -75,7 +75,7 @@ compiled_decode = torch.compile(
     mode="default"
 )
 
-speaker_wav_path = os.path.join(base_dir, "speaker.wav")
+speaker_wav_path = os.path.join(base_dir, "speaker.mp3")
 prompt_tokens = None
 prompt_texts = os.environ.get("REFERENCE_DIALOGUE", "왜 우리 회사에 지원했나요? 예상치 못한 문제에 봉착했을 때, 해결했던 경험은? 동료와 갈등이 발생했을 때, 어떻게 해결했나요? 입사 후 1년 내에 달성하고 싶은 목표는? 마지막으로 하고 싶은 말이나 질문 있나요?")
 
@@ -107,7 +107,7 @@ print("[Init] Fish Speech 1.5 models loaded and ready.")
 class TTSRequest(BaseModel):
     text: str
 
-def synthesize_audio(text: str):
+def synthesize_audio_dummy(text: str):
     with tts_lock:
         try:
             print(f"[TTS] Synthesizing: {text}")
@@ -139,20 +139,71 @@ def synthesize_audio(text: str):
         except Exception as e:
             print(f"[Error] Synthesis failed: {e}")
             return b""
+        
+CHUNK_TOKEN_LEN = 50
+
+def synthesize_audio_generator(text: str):
+    with tts_lock:
+        try:
+            print(f"[TTS] Synthesizing: {text}")
+            with torch.inference_mode():
+                token_generator = generate_long(
+                    model=llama_model,
+                    device=device,
+                    text=text,  # 문단 전체를 통짜로
+                    prompt_text=prompt_texts,
+                    prompt_tokens=prompt_tokens,
+                    max_new_tokens=1024,
+                    temperature=0.5,
+                    top_p=0.7,
+                    decode_one_token=compiled_decode
+                )
+
+                buffer = []
+                for response in token_generator:
+                    if response.action == "sample":
+                        buffer.append(response.codes.detach().clone())
+                        total_len = sum(c.shape[-1] for c in buffer)
+
+                        if total_len >= CHUNK_TOKEN_LEN:
+                            codes = torch.cat(buffer, dim=-1).unsqueeze(0).to(device)
+                            feature_lengths = torch.tensor([codes.shape[-1]], device=device)
+                            audio, _ = vqgan_model.decode(indices=codes, feature_lengths=feature_lengths)
+                            yield audio.squeeze().cpu().float().numpy().astype(np.float32).tobytes()
+                            buffer = []
+
+                # 남은 버퍼 마지막 디코딩
+                if buffer:
+                    codes = torch.cat(buffer, dim=-1).unsqueeze(0).to(device)
+                    feature_lengths = torch.tensor([codes.shape[-1]], device=device)
+                    audio, _ = vqgan_model.decode(indices=codes, feature_lengths=feature_lengths)
+                    yield audio.squeeze().cpu().float().numpy().astype(np.float32).tobytes()
+        except Exception as e:
+            print(f"[Error] Synthesis failed: {e}")
+            return b""
+
 
 async def tts_only_generator(text: str):
+    gen = synthesize_audio_generator(text)
+
     try:
-        # 문장부호 및 줄바꿈을 기준으로 분할
-        sentences = [s.strip() for s in re.split(r'(?<=[.!?\n])', text) if s.strip()]
-        if not sentences:
-            sentences = [text]
-            
-        for sentence in sentences:
-            audio_chunk = await asyncio.to_thread(synthesize_audio, sentence)
-            if audio_chunk:
-                yield sentence, audio_chunk
-    except Exception as e:
-        print(f"[Error] tts_only_generator failed: {e}")
+        def _get_next():
+            try:
+                return next(gen)
+            except StopIteration:
+                return None
+
+        while True:
+            chunk = await asyncio.to_thread(_get_next)
+            if chunk is None:
+                break
+            yield chunk
+    finally:
+        # 정상 종료든, 예외든, 밖에서 aclose() 당하든
+        # 무조건 sync generator를 닫아서 tts_lock을 반드시 해제
+        gen.close()
+
+    
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -169,7 +220,7 @@ async def lifespan(app: FastAPI):
     dummy_text = "안녕하세요. 시스템 초기화를 위한 더미 테스트입니다."
 
     try:
-        await asyncio.to_thread(synthesize_audio, dummy_text)
+        await asyncio.to_thread(synthesize_audio_dummy, dummy_text)
         print("="*60)
         print("[Warm-up] Compilation and warm-up successful!")
         print("[Warm-up] Server is now ready to accept requests.")
@@ -190,7 +241,7 @@ async def process_text_to_audio(request: TTSRequest):
         raise HTTPException(status_code=400, detail="Text is empty")
     
     async def audio_only_generator():
-        async for _, audio_chunk in tts_only_generator(request.text):
+        async for audio_chunk in tts_only_generator(request.text):
             yield audio_chunk
 
     return StreamingResponse(
@@ -208,14 +259,17 @@ async def websocket_endpoint(websocket: WebSocket):
             data = await websocket.receive_text()
             message = json.loads(data)
             text = message.get("text")
-            
+
             if text:
-                async for sentence, audio_chunk in tts_only_generator(text):
-                    # 자막 텍스트 정보 전송
-                    await websocket.send_json({"type": "subtitle", "text": sentence})
-                    # 오디오 바이너리 전송
-                    await websocket.send_bytes(audio_chunk)
-                
+                # 자막 텍스트 정보 전송
+                await websocket.send_json({"type": "subtitle", "text": text})
+                agen = tts_only_generator(text)
+                try:
+                    async for audio_chunk in agen:
+                        await websocket.send_bytes(audio_chunk)
+                finally:
+                    await agen.aclose()
+
                 # 합성 완료 신호 전송 (연결을 끊지 않고 스트림 종료만 통보)
                 await websocket.send_json({"type": "end"})
     except WebSocketDisconnect:
