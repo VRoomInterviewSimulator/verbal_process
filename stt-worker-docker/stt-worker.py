@@ -33,8 +33,11 @@ except Exception as e:
 
 class InterviewFeatures(BaseModel):
     speakingTime: float
-    pauseCount: int
+    meaningfulPauseCount: int
+    volumeVariance: float
+    lowVolumeRatio: float
     averageVolume: float
+    responseTime: float
 
 # Silero VAD의 모델 RNN 상태값: [2, 1, 128] 형태의 제로 텐서
 silero_state = np.zeros((2, 1, 128), dtype=np.float32)
@@ -192,8 +195,12 @@ async def websocket_endpoint(websocket: WebSocket):
                     final_dto = {
                         "sttText": text_to_send,
                         "speakingTime": features.get("speakingTime", 0) if features else 0,
-                        "pauseCount": features.get("pauseCount", 0) if features else 0,
-                        "averageVolume": features.get("averageVolume", 0) if features else 0
+                        "pauseCount": features.get("meaningfulPauseCount", 0) if features else 0,
+                        "meaningfulPauseCount": features.get("meaningfulPauseCount", 0) if features else 0,
+                        "volumeVariance": features.get("volumeVariance", 0) if features else 0,
+                        "lowVolumeRatio": features.get("lowVolumeRatio", 0) if features else 0,
+                        "averageVolume": features.get("averageVolume", 0) if features else 0,
+                        "responseTime": features.get("responseTime", 0) if features else 0
                     }
                     print(f"Send Anyway request received. Directly processing TTS for: {text_to_send}")
                     await websocket.send_json({"type": "final", "data": final_dto})
@@ -273,9 +280,13 @@ async def websocket_endpoint(websocket: WebSocket):
                             print(f"Low confidence ({avg_confidence:.2f} < 0.75). Sending correction request to Unity.")
                             final_dto = {
                                 "sttText": final_text,
-                                "speakingTime": features["speakingTime"] if features else 0.0,
-                                "pauseCount": features["pauseCount"] if features else 0,
-                                "averageVolume": features["averageVolume"] if features else 0.0
+                                "speakingTime": features.get("speakingTime", 0.0) if features else 0.0,
+                                "pauseCount": features.get("meaningfulPauseCount", 0) if features else 0,
+                                "meaningfulPauseCount": features.get("meaningfulPauseCount", 0) if features else 0,
+                                "volumeVariance": features.get("volumeVariance", 0.0) if features else 0.0,
+                                "lowVolumeRatio": features.get("lowVolumeRatio", 0.0) if features else 0.0,
+                                "averageVolume": features.get("averageVolume", 0.0) if features else 0.0,
+                                "responseTime": features.get("responseTime", 0.0) if features else 0.0
                             }
                             words_list = [w["word"] for w in words_info]
                             confidences_list = [w["probability"] for w in words_info]
@@ -296,9 +307,13 @@ async def websocket_endpoint(websocket: WebSocket):
                         # 일반 모드이면서 신뢰도가 양호하거나, 수정 모드인 경우 다음 LLM/TTS 파이프라인으로 전송
                         final_dto = {
                             "sttText": final_text,
-                            "speakingTime": features["speakingTime"] if features else 0.0,
-                            "pauseCount": features["pauseCount"] if features else 0,
-                            "averageVolume": features["averageVolume"] if features else 0.0
+                            "speakingTime": features.get("speakingTime", 0.0) if features else 0.0,
+                            "pauseCount": features.get("meaningfulPauseCount", 0) if features else 0,
+                            "meaningfulPauseCount": features.get("meaningfulPauseCount", 0) if features else 0,
+                            "volumeVariance": features.get("volumeVariance", 0.0) if features else 0.0,
+                            "lowVolumeRatio": features.get("lowVolumeRatio", 0.0) if features else 0.0,
+                            "averageVolume": features.get("averageVolume", 0.0) if features else 0.0,
+                            "responseTime": features.get("responseTime", 0.0) if features else 0.0
                         }
                         await websocket.send_json({"type": "final", "data": final_dto})
 
@@ -332,7 +347,11 @@ async def websocket_endpoint(websocket: WebSocket):
                         try:
                             ws = await get_or_connect_tts_ws()
                             if ws is not None:
-                                await ws.send(json.dumps({"text": final_text, "session_id": session_id}))
+                                await ws.send(json.dumps({
+                                    "text": final_text,
+                                    "session_id": session_id,
+                                    "features": features if features else {}
+                                }))
                                 print(f"Sent text to TTS Worker: {final_text}")
                                 sent_successfully = True
                                 break
